@@ -3,12 +3,7 @@
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  useStudyTasks,
-  useHomework,
-  useSettings,
-  useStudyLogs,
-} from "@/hooks/use-data";
+import { useStudyTasks, useHomework, useSettings } from "@/hooks/use-data";
 import { todayISO, isOverdueISO } from "@/lib/date";
 import { formatMinutes } from "@/lib/utils";
 
@@ -68,15 +63,15 @@ function Stat({ value, label }: { value: string; label: string }) {
 export function TodayOverview() {
   const { tasks, loading: t1 } = useStudyTasks();
   const { homework, loading: t2 } = useHomework();
-  const { logs } = useStudyLogs();
   const { settings } = useSettings();
   const today = todayISO();
 
   const stats = useMemo(() => {
     const todayTasks = tasks.filter((t) => t.date === today);
-    const studyMinutes = logs
-      .filter((l) => l.date === today)
-      .reduce((sum, l) => sum + (l.minutes || 0), 0);
+    const studyMinutes = todayTasks.reduce(
+      (sum, t) => sum + (t.studyMinutes || 0),
+      0
+    );
     const doneTasks = todayTasks.filter((t) => t.completed).length;
     const openHomework = homework.filter((h) => !h.completed);
     const overdue = openHomework.filter((h) => isOverdueISO(h.dueDate)).length;
@@ -97,7 +92,7 @@ export function TodayOverview() {
       goal,
       percent,
     };
-  }, [tasks, homework, logs, settings, today]);
+  }, [tasks, homework, settings, today]);
 
   if (t1 || t2) {
     return <Skeleton className="h-40 w-full" />;

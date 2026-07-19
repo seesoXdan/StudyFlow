@@ -6,6 +6,7 @@ import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 import { SubjectDot } from "@/components/cards/subject-dot";
 import {
   DropdownMenu,
@@ -44,7 +45,7 @@ export function SubjectManager() {
 
   async function quickAddElective(name: string, color: string) {
     try {
-      await addSubject({ name, color, order: subjects.length });
+      await addSubject({ name, color, order: subjects.length, progress: 0 });
       toast.success(`${name} 추가됨`);
     } catch {
       toast.error("추가에 실패했어요");
@@ -53,39 +54,55 @@ export function SubjectManager() {
 
   return (
     <section>
-      <SectionHeader title="과목" />
+      <SectionHeader title="과목 & 진도" />
       {loading ? (
         <Skeleton className="h-40 w-full" />
       ) : (
         <Card>
           <CardContent className="space-y-4 p-4">
             <div className="divide-y divide-border">
-              {subjects.map((s) => (
-                <div key={s.id} className="flex items-center gap-3 py-2.5">
-                  <SubjectDot color={s.color} className="h-3 w-3" />
-                  <span className="flex-1 text-sm font-medium">{s.name}</span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditRow(s)}>
-                        <Pencil className="h-4 w-4 text-muted-foreground" />
-                        수정
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setDeleteRow(s)}
-                        className="text-danger focus:text-danger"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        삭제
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
+              {subjects.map((s) => {
+                const pct = Math.max(0, Math.min(100, s.progress ?? 0));
+                return (
+                  <div key={s.id} className="py-3">
+                    <div className="flex items-center gap-3">
+                      <SubjectDot color={s.color} className="h-3 w-3" />
+                      <span className="flex-1 text-sm font-medium">{s.name}</span>
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        {pct}%
+                      </span>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setEditRow(s)}>
+                            <Pencil className="h-4 w-4 text-muted-foreground" />
+                            진도 수정
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setDeleteRow(s)}
+                            className="text-danger focus:text-danger"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            삭제
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <div className="mt-2 pl-6">
+                      <Progress value={pct} className="h-2" />
+                      {s.progressNote && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {s.progressNote}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {availableElectives.length > 0 && (
@@ -135,9 +152,16 @@ export function SubjectManager() {
       <SubjectFormDialog
         open={Boolean(editRow)}
         onOpenChange={(v) => !v && setEditRow(null)}
-        title="과목 수정"
+        title="과목 · 진도 수정"
         defaultValues={
-          editRow ? { name: editRow.name, color: editRow.color } : undefined
+          editRow
+            ? {
+                name: editRow.name,
+                color: editRow.color,
+                progress: editRow.progress ?? 0,
+                progressNote: editRow.progressNote ?? "",
+              }
+            : undefined
         }
         onSubmit={async (values: SubjectInput) => {
           if (editRow) {

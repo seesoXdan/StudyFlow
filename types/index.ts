@@ -24,7 +24,22 @@ export interface Subject {
   color: string; // hsl or hex used on cards/charts
   order: number;
   isDefault: boolean;
+  progress?: number; // 진도율 0-100
+  progressNote?: string; // 현재 진도 메모 (예: 미적분 3단원, 교재 p.120)
   createdAt: string;
+}
+
+/** A time-blocked entry in the daily study plan. */
+export interface PlanBlock {
+  id: ID;
+  date: ISODate;
+  startTime: string; // "19:00"
+  endTime: string; // "20:00"
+  subjectId?: ID;
+  title: string;
+  done: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /** A planned/finished study session. */
@@ -137,6 +152,7 @@ export const COLLECTIONS = {
   schoolSchedule: "school_schedule",
   academySchedule: "academy_schedule",
   reflections: "daily_reflection",
+  dailyPlan: "daily_plan",
   settings: "settings",
 } as const;
 

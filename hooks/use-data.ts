@@ -14,6 +14,7 @@ import type {
   Settings,
   SchoolPeriod,
   AcademyClass,
+  PlanBlock,
 } from "@/types";
 
 type WithId<T> = T & { id: string };
@@ -68,6 +69,11 @@ export function useAcademySchedule() {
     COLLECTIONS.academySchedule
   );
   return { classes: data, loading };
+}
+
+export function usePlanBlocks() {
+  const { data, loading } = useCollection<PlanBlock>(COLLECTIONS.dailyPlan);
+  return { blocks: data, loading };
 }
 
 export function useReflections() {

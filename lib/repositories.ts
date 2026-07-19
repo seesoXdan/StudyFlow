@@ -14,6 +14,7 @@ import type {
   ReflectionInput,
   SettingsInput,
   SubjectInput,
+  PlanBlockInput,
 } from "./schemas";
 
 /* ----------------------------- Subjects ------------------------------ */
@@ -118,6 +119,18 @@ export function deleteReflection(date: string) {
 
 export function saveSettings(input: SettingsInput) {
   return upsertDoc(COLLECTIONS.settings, "settings", { ...input, id: "settings" });
+}
+
+/* --------------------------- Daily plan ------------------------------ */
+
+export function addPlanBlock(input: PlanBlockInput) {
+  return createDoc(COLLECTIONS.dailyPlan, input);
+}
+export function updatePlanBlock(id: string, patch: Partial<PlanBlockInput>) {
+  return patchDoc(COLLECTIONS.dailyPlan, id, patch);
+}
+export function deletePlanBlock(id: string) {
+  return removeDoc(COLLECTIONS.dailyPlan, id);
 }
 
 /* ---------------------------- Study logs ----------------------------- */

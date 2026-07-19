@@ -13,9 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -25,25 +23,28 @@ import {
 } from "@/components/ui/select";
 import { FieldError } from "./field-error";
 import { SubjectDot } from "@/components/cards/subject-dot";
-import { wrongNoteSchema, type WrongNoteInput } from "@/lib/schemas";
-import { todayISO } from "@/lib/date";
+import { planBlockSchema, type PlanBlockInput } from "@/lib/schemas";
 import type { Subject } from "@/types";
+
+const NONE = "none";
 
 interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   subjects: (Subject & { id: string })[];
-  defaultValues?: Partial<WrongNoteInput>;
+  date: string;
+  defaultValues?: Partial<PlanBlockInput>;
   title?: string;
-  onSubmit: (values: WrongNoteInput) => Promise<void>;
+  onSubmit: (values: PlanBlockInput) => Promise<void>;
 }
 
-export function WrongNoteFormDialog({
+export function PlanFormDialog({
   open,
   onOpenChange,
   subjects,
+  date,
   defaultValues,
-  title = "오답노트 추가",
+  title = "계획 추가",
   onSubmit,
 }: Props) {
   const {
@@ -52,15 +53,15 @@ export function WrongNoteFormDialog({
     control,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<WrongNoteInput>({
-    resolver: zodResolver(wrongNoteSchema),
+  } = useForm<PlanBlockInput>({
+    resolver: zodResolver(planBlockSchema),
     defaultValues: {
-      subjectId: "",
-      chapter: "",
-      memo: "",
-      reviewed: false,
-      completed: false,
-      date: todayISO(),
+      date,
+      startTime: "19:00",
+      endTime: "20:00",
+      subjectId: NONE,
+      title: "",
+      done: false,
       ...defaultValues,
     },
   });
@@ -68,21 +69,24 @@ export function WrongNoteFormDialog({
   useEffect(() => {
     if (open) {
       reset({
-        subjectId: subjects[0]?.id ?? "",
-        chapter: "",
-        memo: "",
-        reviewed: false,
-        completed: false,
-        date: todayISO(),
+        date,
+        startTime: "19:00",
+        endTime: "20:00",
+        subjectId: NONE,
+        title: "",
+        done: false,
         ...defaultValues,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  async function submit(values: WrongNoteInput) {
+  async function submit(values: PlanBlockInput) {
     try {
-      await onSubmit(values);
+      await onSubmit({
+        ...values,
+        subjectId: values.subjectId === NONE ? undefined : values.subjectId,
+      });
       onOpenChange(false);
     } catch {
       toast.error("저장에 실패했어요");
@@ -96,17 +100,42 @@ export function WrongNoteFormDialog({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(submit)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="pl-start">시작 시간</Label>
+              <Input id="pl-start" type="time" className="mt-1.5" {...register("startTime")} />
+              <FieldError message={errors.startTime?.message} />
+            </div>
+            <div>
+              <Label htmlFor="pl-end">종료 시간</Label>
+              <Input id="pl-end" type="time" className="mt-1.5" {...register("endTime")} />
+              <FieldError message={errors.endTime?.message} />
+            </div>
+          </div>
+
           <div>
-            <Label>과목</Label>
+            <Label htmlFor="pl-title">할 일</Label>
+            <Input
+              id="pl-title"
+              className="mt-1.5"
+              placeholder="예: 수학 문제집 3단원"
+              {...register("title")}
+            />
+            <FieldError message={errors.title?.message} />
+          </div>
+
+          <div>
+            <Label>과목 (선택)</Label>
             <Controller
               control={control}
               name="subjectId"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value || NONE} onValueChange={field.onChange}>
                   <SelectTrigger className="mt-1.5">
-                    <SelectValue placeholder="과목 선택" />
+                    <SelectValue placeholder="과목" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value={NONE}>과목 미지정</SelectItem>
                     {subjects.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         <span className="flex items-center gap-2">
@@ -119,51 +148,10 @@ export function WrongNoteFormDialog({
                 </Select>
               )}
             />
-            <FieldError message={errors.subjectId?.message} />
           </div>
-
-          <div>
-            <Label htmlFor="wn-chapter">단원</Label>
-            <Input
-              id="wn-chapter"
-              className="mt-1.5"
-              placeholder="예: 이차함수 - 최댓값/최솟값"
-              {...register("chapter")}
-            />
-            <FieldError message={errors.chapter?.message} />
-          </div>
-
-          <div>
-            <Label htmlFor="wn-memo">메모 (틀린 이유·풀이)</Label>
-            <Textarea
-              id="wn-memo"
-              className="mt-1.5 min-h-[120px]"
-              placeholder="왜 틀렸는지, 어떻게 푸는지 정리해 보세요."
-              {...register("memo")}
-            />
-            <FieldError message={errors.memo?.message} />
-          </div>
-
-          <Controller
-            control={control}
-            name="reviewed"
-            render={({ field }) => (
-              <label className="flex items-center gap-3">
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={(v) => field.onChange(Boolean(v))}
-                />
-                <span className="text-sm font-medium">복습 완료</span>
-              </label>
-            )}
-          />
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               취소
             </Button>
             <Button type="submit" disabled={isSubmitting}>

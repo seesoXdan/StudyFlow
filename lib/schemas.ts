@@ -6,8 +6,25 @@ const required = (label: string) => `${label}을(를) 입력해 주세요`;
 export const subjectSchema = z.object({
   name: z.string().trim().min(1, required("과목명")).max(20, "20자 이하로 입력해 주세요"),
   color: z.string().regex(/^#([0-9a-fA-F]{6})$/, "색상을 선택해 주세요"),
+  progress: z.coerce.number().int().min(0).max(100).default(0),
+  progressNote: z.string().max(60).optional(),
 });
 export type SubjectInput = z.infer<typeof subjectSchema>;
+
+export const planBlockSchema = z
+  .object({
+    date: z.string().min(1, "날짜를 선택해 주세요"),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/, "시작 시간을 입력해 주세요"),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/, "종료 시간을 입력해 주세요"),
+    subjectId: z.string().optional(),
+    title: z.string().trim().min(1, required("할 일")).max(60),
+    done: z.boolean().default(false),
+  })
+  .refine((v) => v.endTime > v.startTime, {
+    message: "종료 시간은 시작 시간보다 늦어야 해요",
+    path: ["endTime"],
+  });
+export type PlanBlockInput = z.infer<typeof planBlockSchema>;
 
 export const studyTaskSchema = z.object({
   subjectId: z.string().min(1, "과목을 선택해 주세요"),

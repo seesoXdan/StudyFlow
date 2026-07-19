@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   BookOpen,
   CheckSquare,
-  StickyNote,
+  ClipboardList,
   NotebookPen,
   ChevronRight,
 } from "lucide-react";
@@ -48,7 +48,7 @@ export function DayDetail({
   const empty =
     agg.study.length === 0 &&
     agg.homework.length === 0 &&
-    agg.wrongNotes.length === 0 &&
+    agg.plan.length === 0 &&
     !agg.reflection;
 
   return (
@@ -108,17 +108,17 @@ export function DayDetail({
               </section>
             )}
 
-            {agg.wrongNotes.length > 0 && (
+            {agg.plan.length > 0 && (
               <section>
                 <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                  <StickyNote className="h-3.5 w-3.5" /> 오답노트
+                  <ClipboardList className="h-3.5 w-3.5" /> 하루 계획
                 </p>
-                {agg.wrongNotes.map((n) => (
+                {agg.plan.map((b) => (
                   <Row
-                    key={n.id}
-                    color={subjectMap.get(n.subjectId)?.color}
-                    label={n.chapter}
-                    done={n.completed}
+                    key={b.id}
+                    color={b.subjectId ? subjectMap.get(b.subjectId)?.color : undefined}
+                    label={`${b.startTime} ${b.title}`}
+                    done={b.done}
                   />
                 ))}
               </section>

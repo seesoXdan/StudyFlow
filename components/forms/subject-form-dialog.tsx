@@ -42,12 +42,24 @@ export function SubjectFormDialog({
     formState: { errors, isSubmitting },
   } = useForm<SubjectInput>({
     resolver: zodResolver(subjectSchema),
-    defaultValues: { name: "", color: SUBJECT_COLORS[5], ...defaultValues },
+    defaultValues: {
+      name: "",
+      color: SUBJECT_COLORS[5],
+      progress: 0,
+      progressNote: "",
+      ...defaultValues,
+    },
   });
 
   useEffect(() => {
     if (open) {
-      reset({ name: "", color: SUBJECT_COLORS[5], ...defaultValues });
+      reset({
+        name: "",
+        color: SUBJECT_COLORS[5],
+        progress: 0,
+        progressNote: "",
+        ...defaultValues,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -106,6 +118,30 @@ export function SubjectFormDialog({
               )}
             />
             <FieldError message={errors.color?.message} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="subject-progress">진도율 (%)</Label>
+              <Input
+                id="subject-progress"
+                type="number"
+                min={0}
+                max={100}
+                className="mt-1.5"
+                {...register("progress")}
+              />
+              <FieldError message={errors.progress?.message} />
+            </div>
+            <div>
+              <Label htmlFor="subject-note">진도 메모</Label>
+              <Input
+                id="subject-note"
+                className="mt-1.5"
+                placeholder="예: 미적분 3단원"
+                {...register("progressNote")}
+              />
+            </div>
           </div>
 
           <DialogFooter>

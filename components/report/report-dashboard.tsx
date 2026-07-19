@@ -19,7 +19,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BarChart3 } from "lucide-react";
 import {
-  useStudyLogs,
   useStudyTasks,
   useHomework,
   useSubjects,
@@ -85,24 +84,23 @@ function MinutesTooltip({ active, payload }: any) {
 }
 
 export function ReportDashboard() {
-  const { logs, loading: l1 } = useStudyLogs();
   const { tasks, loading: l2 } = useStudyTasks();
   const { homework, loading: l3 } = useHomework();
   const { subjects } = useSubjects();
 
   const data = useMemo(() => {
     return {
-      weekly: dailyStudy(logs, 7),
-      monthly: monthlyStudy(logs, 6),
-      bySubject: subjectStudy(logs, subjects),
+      weekly: dailyStudy(tasks, 7),
+      monthly: monthlyStudy(tasks, 6),
+      bySubject: subjectStudy(tasks, subjects),
       hw: completion(homework),
       task: completion(tasks),
-      streak: studyStreak(logs),
-      total: totalMinutes(logs),
+      streak: studyStreak(tasks),
+      total: totalMinutes(tasks),
     };
-  }, [logs, tasks, homework, subjects]);
+  }, [tasks, homework, subjects]);
 
-  const loading = l1 || l2 || l3;
+  const loading = l2 || l3;
 
   if (loading) {
     return (

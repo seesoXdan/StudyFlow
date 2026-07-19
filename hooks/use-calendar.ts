@@ -4,21 +4,21 @@ import { useMemo } from "react";
 import {
   useStudyTasks,
   useHomework,
-  useWrongNotes,
+  usePlanBlocks,
   useReflections,
 } from "./use-data";
 import { statusFromFlags, type DayStatus } from "@/lib/calendar";
 import type {
   StudyTask,
   Homework,
-  WrongNote,
+  PlanBlock,
   DailyReflection,
 } from "@/types";
 
 export interface DayAgg {
   study: (StudyTask & { id: string })[];
   homework: (Homework & { id: string })[];
-  wrongNotes: (WrongNote & { id: string })[];
+  plan: (PlanBlock & { id: string })[];
   reflection?: DailyReflection & { id: string };
   status: DayStatus;
 }
@@ -26,14 +26,14 @@ export interface DayAgg {
 const EMPTY: DayAgg = {
   study: [],
   homework: [],
-  wrongNotes: [],
+  plan: [],
   status: "none",
 };
 
 export function useCalendarData() {
   const { tasks, loading: l1 } = useStudyTasks();
   const { homework, loading: l2 } = useHomework();
-  const { notes, loading: l3 } = useWrongNotes();
+  const { blocks, loading: l3 } = usePlanBlocks();
   const { reflections, loading: l4 } = useReflections();
 
   const byDate = useMemo(() => {
@@ -41,7 +41,7 @@ export function useCalendarData() {
     const ensure = (d: string): DayAgg => {
       let agg = map.get(d);
       if (!agg) {
-        agg = { study: [], homework: [], wrongNotes: [], status: "none" };
+        agg = { study: [], homework: [], plan: [], status: "none" };
         map.set(d, agg);
       }
       return agg;
@@ -49,22 +49,28 @@ export function useCalendarData() {
 
     tasks.forEach((t) => ensure(t.date).study.push(t));
     homework.forEach((h) => ensure(h.dueDate).homework.push(h));
-    notes.forEach((n) => ensure(n.date).wrongNotes.push(n));
+    blocks.forEach((b) => ensure(b.date).plan.push(b));
     reflections.forEach((r) => {
       ensure(r.date).reflection = r;
     });
 
-    // Compute status from study + homework completion flags.
+    // Sort plan blocks by time within each day.
+    map.forEach((agg) =>
+      agg.plan.sort((a, b) => a.startTime.localeCompare(b.startTime))
+    );
+
+    // Compute status from study + homework + plan completion flags.
     map.forEach((agg) => {
       const flags = [
         ...agg.study.map((s) => s.completed),
         ...agg.homework.map((h) => h.completed),
+        ...agg.plan.map((p) => p.done),
       ];
       agg.status = statusFromFlags(flags);
     });
 
     return map;
-  }, [tasks, homework, notes, reflections]);
+  }, [tasks, homework, blocks, reflections]);
 
   return { byDate, loading: l1 || l2 || l3 || l4 };
 }
