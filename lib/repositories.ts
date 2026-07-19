@@ -2,9 +2,18 @@
 
 import { getDocs } from "firebase/firestore";
 import { colRef } from "./paths";
-import { createDoc, patchDoc, removeDoc, upsertDoc, createDoc as add } from "./db";
+import {
+  createDoc,
+  patchDoc,
+  removeDoc,
+  upsertDoc,
+  readCollection,
+  createDoc as add,
+} from "./db";
 import { COLLECTIONS } from "@/types";
+import type { StudyTask, Homework } from "@/types";
 import { DEFAULT_SUBJECTS } from "./constants";
+import { todayISO } from "./date";
 import type {
   StudyTaskInput,
   HomeworkInput,
@@ -17,6 +26,7 @@ import type {
   PlanBlockInput,
   SupplyInput,
   AssessmentInput,
+  EventInput,
 } from "./schemas";
 
 /* ----------------------------- Subjects ------------------------------ */
@@ -121,6 +131,51 @@ export function deleteReflection(date: string) {
 
 export function saveSettings(input: SettingsInput) {
   return upsertDoc(COLLECTIONS.settings, "settings", { ...input, id: "settings" });
+}
+
+/* -------------------------- Calendar events -------------------------- */
+
+export function addEvent(input: EventInput) {
+  return createDoc(COLLECTIONS.events, input);
+}
+export function updateEvent(id: string, patch: Partial<EventInput>) {
+  return patchDoc(COLLECTIONS.events, id, patch);
+}
+export function deleteEvent(id: string) {
+  return removeDoc(COLLECTIONS.events, id);
+}
+
+/* ---------------------- Carry over incomplete ------------------------ */
+
+/**
+ * Roll incomplete study tasks and homework from past dates forward to today,
+ * so unfinished work is never silently lost. Idempotent — safe to run on load.
+ */
+export async function rolloverIncomplete(): Promise<number> {
+  const today = todayISO();
+  let moved = 0;
+
+  const tasks = await readCollection<StudyTask>(COLLECTIONS.studyTasks);
+  await Promise.all(
+    tasks
+      .filter((t) => !t.completed && t.date < today)
+      .map((t) => {
+        moved += 1;
+        return patchDoc(COLLECTIONS.studyTasks, t.id, { date: today });
+      })
+  );
+
+  const homework = await readCollection<Homework>(COLLECTIONS.homework);
+  await Promise.all(
+    homework
+      .filter((h) => !h.completed && h.dueDate < today)
+      .map((h) => {
+        moved += 1;
+        return patchDoc(COLLECTIONS.homework, h.id, { dueDate: today });
+      })
+  );
+
+  return moved;
 }
 
 /* --------------------------- Daily plan ------------------------------ */

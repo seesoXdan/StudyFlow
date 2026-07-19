@@ -19,6 +19,7 @@ import type {
   PlanBlock,
   SchoolSupply,
   Assessment,
+  CalendarEvent,
 } from "@/types";
 
 type WithId<T> = T & { id: string };
@@ -101,6 +102,11 @@ export function useSupplies() {
 export function useAssessments() {
   const { data, loading } = useCollection<Assessment>(COLLECTIONS.assessments);
   return { assessments: data, loading };
+}
+
+export function useEvents() {
+  const { data, loading } = useCollection<CalendarEvent>(COLLECTIONS.events);
+  return { events: data, loading };
 }
 
 export function usePlanBlocks() {

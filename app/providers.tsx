@@ -4,7 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { useEffect, useRef, type ReactNode } from "react";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
-import { ensureDefaultSubjects } from "@/lib/repositories";
+import { ensureDefaultSubjects, rolloverIncomplete } from "@/lib/repositories";
 import { PwaRegister } from "@/components/pwa-register";
 
 /** Seeds the default subjects once the workspace is ready. */
@@ -17,6 +17,10 @@ function DataBootstrap() {
     done.current = true;
     ensureDefaultSubjects().catch((err) =>
       console.error("[StudyFlow] seeding subjects failed", err)
+    );
+    // Move yesterday's unfinished study/homework forward to today.
+    rolloverIncomplete().catch((err) =>
+      console.error("[StudyFlow] rollover failed", err)
     );
   }, [ready, configured]);
 

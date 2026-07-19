@@ -44,6 +44,21 @@ export const assessmentSchema = z
   });
 export type AssessmentInput = z.infer<typeof assessmentSchema>;
 
+export const eventSchema = z
+  .object({
+    date: z.string().min(1, "날짜를 선택해 주세요"),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/).optional().or(z.literal("")),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/).optional().or(z.literal("")),
+    title: z.string().trim().min(1, required("일정 내용")).max(60),
+    category: z.string().min(1).default("개인활동"),
+    memo: z.string().max(300).optional(),
+  })
+  .refine(
+    (v) => !v.startTime || !v.endTime || v.endTime >= v.startTime,
+    { message: "종료 시간은 시작 시간보다 늦어야 해요", path: ["endTime"] }
+  );
+export type EventInput = z.infer<typeof eventSchema>;
+
 export const planBlockSchema = z
   .object({
     date: z.string().min(1, "날짜를 선택해 주세요"),

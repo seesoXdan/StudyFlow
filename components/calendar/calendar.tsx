@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MonthView } from "./month-view";
 import { DayDetail } from "./day-detail";
+import { DayEvents } from "./day-events";
 import { useSubjectMap } from "@/hooks/use-data";
 import { useCalendarData, getDayAgg } from "@/hooks/use-calendar";
 import { buildWeek, STATUS_COLOR, WEEKDAY_HEADERS } from "@/lib/calendar";
@@ -39,11 +40,14 @@ export function Calendar() {
   }
 
   const detail = (
-    <DayDetail
-      iso={selectedISO}
-      agg={getDayAgg(byDate, selectedISO)}
-      subjectMap={subjectMap}
-    />
+    <>
+      <DayDetail
+        iso={selectedISO}
+        agg={getDayAgg(byDate, selectedISO)}
+        subjectMap={subjectMap}
+      />
+      <DayEvents date={selectedISO} />
+    </>
   );
 
   return (

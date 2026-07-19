@@ -49,6 +49,19 @@ export interface RangeItem {
 export type SchoolSupply = RangeItem;
 export type Assessment = RangeItem;
 
+/** A general calendar schedule entry (과외, 개인활동 등). */
+export interface CalendarEvent {
+  id: ID;
+  date: ISODate;
+  startTime?: string; // "16:00" (optional; empty = 종일)
+  endTime?: string;
+  title: string;
+  category: string; // 과외 / 개인활동 / 기타 ...
+  memo?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /** A time-blocked entry in the daily study plan. */
 export interface PlanBlock {
   id: ID;
@@ -173,6 +186,7 @@ export const COLLECTIONS = {
   academySchedule: "academy_schedule",
   reflections: "daily_reflection",
   dailyPlan: "daily_plan",
+  events: "events",
   supplies: "school_supplies",
   assessments: "assessments",
   settings: "settings",

@@ -54,3 +54,17 @@ export const MOOD_EMOJI: Record<number, string> = {
 
 /** Preset study timer lengths (minutes). */
 export const TIMER_PRESETS = [25, 50, 90] as const;
+
+/** Calendar event categories (과외, 개인활동 등). */
+export const EVENT_CATEGORIES: { key: string; label: string; color: string }[] =
+  [
+    { key: "과외", label: "과외", color: "#2563EB" },
+    { key: "개인활동", label: "개인활동", color: "#14B8A6" },
+    { key: "학원", label: "학원", color: "#8B5CF6" },
+    { key: "약속", label: "약속", color: "#F59E0B" },
+    { key: "기타", label: "기타", color: "#64748B" },
+  ];
+
+export function eventCategoryColor(key: string): string {
+  return EVENT_CATEGORIES.find((c) => c.key === key)?.color || "#64748B";
+}
