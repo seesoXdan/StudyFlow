@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, MoreHorizontal, Pencil, Trash2, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,11 +21,22 @@ import type { EventInput } from "@/lib/schemas";
 
 type Row = CalendarEvent & { id: string };
 
-export function DayEvents({ date }: { date: string }) {
+export function DayEvents({
+  date,
+  openAddNonce = 0,
+}: {
+  date: string;
+  openAddNonce?: number;
+}) {
   const { events } = useEvents();
   const [addOpen, setAddOpen] = useState(false);
   const [editRow, setEditRow] = useState<Row | null>(null);
   const [deleteRow, setDeleteRow] = useState<Row | null>(null);
+
+  // Parent (calendar) bumps the nonce to open the quick-add input on re-click.
+  useEffect(() => {
+    if (openAddNonce > 0) setAddOpen(true);
+  }, [openAddNonce]);
 
   const items = useMemo(
     () =>

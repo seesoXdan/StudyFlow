@@ -20,6 +20,7 @@ export function Calendar() {
   const today = todayISO();
   const [monthDate, setMonthDate] = useState(() => new Date());
   const [selectedISO, setSelectedISO] = useState(today);
+  const [addNonce, setAddNonce] = useState(0);
   const { byDate, loading } = useCalendarData();
   const { subjectMap } = useSubjectMap();
 
@@ -28,6 +29,13 @@ export function Calendar() {
 
   function shiftDay(delta: number) {
     setSelectedISO(toISODate(addDays(selectedDate, delta)));
+  }
+
+  // First click selects the date; clicking the already-selected date opens
+  // the quick "일정 추가" input directly.
+  function handleSelect(iso: string) {
+    if (iso === selectedISO) setAddNonce((n) => n + 1);
+    else setSelectedISO(iso);
   }
 
   if (loading) {
@@ -41,12 +49,12 @@ export function Calendar() {
 
   const detail = (
     <>
+      <DayEvents date={selectedISO} openAddNonce={addNonce} />
       <DayDetail
         iso={selectedISO}
         agg={getDayAgg(byDate, selectedISO)}
         subjectMap={subjectMap}
       />
-      <DayEvents date={selectedISO} />
     </>
   );
 
@@ -63,9 +71,12 @@ export function Calendar() {
           monthDate={monthDate}
           setMonthDate={setMonthDate}
           selectedISO={selectedISO}
-          onSelect={setSelectedISO}
+          onSelect={handleSelect}
           byDate={byDate}
         />
+        <p className="px-1 text-center text-xs text-muted-foreground">
+          날짜를 한 번 더 누르면 일정을 바로 추가할 수 있어요.
+        </p>
         {detail}
       </TabsContent>
 
@@ -104,7 +115,7 @@ export function Calendar() {
                   <button
                     key={iso}
                     type="button"
-                    onClick={() => setSelectedISO(iso)}
+                    onClick={() => handleSelect(iso)}
                     className={cn(
                       "flex flex-col items-center gap-1 rounded-xl py-2 transition-colors",
                       selected ? "bg-primary text-primary-foreground" : "hover:bg-muted"
