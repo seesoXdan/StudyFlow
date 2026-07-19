@@ -3,7 +3,9 @@
 import { useMemo } from "react";
 import { orderBy } from "firebase/firestore";
 import { useCollection, useDocData } from "./use-firestore";
+import { useAuth } from "./use-auth";
 import { COLLECTIONS } from "@/types";
+import { DEFAULT_SUBJECTS, ELECTIVE_SUBJECTS } from "@/lib/constants";
 import type {
   Subject,
   StudyTask,
@@ -19,10 +21,28 @@ import type {
 
 type WithId<T> = T & { id: string };
 
+/** Selectable subjects to show before Firebase is connected (preview mode). */
+const FALLBACK_SUBJECTS: WithId<Subject>[] = [
+  ...DEFAULT_SUBJECTS,
+  ...ELECTIVE_SUBJECTS,
+].map((s, i) => ({
+  id: `preview-${s.name}`,
+  name: s.name,
+  color: s.color,
+  order: i,
+  isDefault: true,
+  progress: 0,
+  createdAt: "",
+}));
+
 export function useSubjects() {
+  const { configured } = useAuth();
   const { data, loading } = useCollection<Subject>(COLLECTIONS.subjects, [
     orderBy("order", "asc"),
   ]);
+  // Without Firebase, seeding can't run — offer the standard subjects so the
+  // selection dropdowns still work in preview mode.
+  if (!configured) return { subjects: FALLBACK_SUBJECTS, loading: false };
   return { subjects: data, loading };
 }
 

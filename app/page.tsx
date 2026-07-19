@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Greeting } from "@/components/home/greeting";
 import { SetupNotice } from "@/components/home/setup-notice";
@@ -18,10 +17,7 @@ export default function HomePage() {
       <TodayOverview />
 
       <Button asChild size="lg" className="w-full">
-        <Link href="/study">
-          <Play className="h-5 w-5" fill="currentColor" strokeWidth={0} />
-          빠른 공부 시작
-        </Link>
+        <Link href="/study">빠른 공부 시작</Link>
       </Button>
 
       <TodayStudy />
