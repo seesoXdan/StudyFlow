@@ -5,6 +5,8 @@ import {
   CalendarDays,
   BarChart3,
   ClipboardList,
+  Backpack,
+  ClipboardCheck,
   School,
   GraduationCap,
   NotebookPen,
@@ -30,6 +32,8 @@ export const PRIMARY_NAV: NavItem[] = [
 /** Secondary destinations (sidebar / more menu). */
 export const SECONDARY_NAV: NavItem[] = [
   { href: "/plan", label: "하루 계획", icon: ClipboardList },
+  { href: "/supplies", label: "준비물", icon: Backpack },
+  { href: "/assessments", label: "수행평가", icon: ClipboardCheck },
   { href: "/school", label: "학교 시간표", icon: School },
   { href: "/academy", label: "학원 시간표", icon: GraduationCap },
   { href: "/reflection", label: "오늘의 회고", icon: NotebookPen },

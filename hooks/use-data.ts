@@ -17,6 +17,8 @@ import type {
   SchoolPeriod,
   AcademyClass,
   PlanBlock,
+  SchoolSupply,
+  Assessment,
 } from "@/types";
 
 type WithId<T> = T & { id: string };
@@ -89,6 +91,16 @@ export function useAcademySchedule() {
     COLLECTIONS.academySchedule
   );
   return { classes: data, loading };
+}
+
+export function useSupplies() {
+  const { data, loading } = useCollection<SchoolSupply>(COLLECTIONS.supplies);
+  return { supplies: data, loading };
+}
+
+export function useAssessments() {
+  const { data, loading } = useCollection<Assessment>(COLLECTIONS.assessments);
+  return { assessments: data, loading };
 }
 
 export function usePlanBlocks() {

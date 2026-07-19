@@ -29,6 +29,26 @@ export interface Subject {
   createdAt: string;
 }
 
+/** Shared shape for date-range items (준비물 / 수행평가). */
+export interface RangeItem {
+  id: ID;
+  subjectId?: ID;
+  title: string;
+  startDate: ISODate;
+  endDate: ISODate;
+  memo?: string;
+  done: boolean;
+  // Optional attached school notice (compressed image data URL).
+  fileData?: string;
+  fileName?: string;
+  fileType?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SchoolSupply = RangeItem;
+export type Assessment = RangeItem;
+
 /** A time-blocked entry in the daily study plan. */
 export interface PlanBlock {
   id: ID;
@@ -153,6 +173,8 @@ export const COLLECTIONS = {
   academySchedule: "academy_schedule",
   reflections: "daily_reflection",
   dailyPlan: "daily_plan",
+  supplies: "school_supplies",
+  assessments: "assessments",
   settings: "settings",
 } as const;
 

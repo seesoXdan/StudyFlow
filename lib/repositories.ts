@@ -15,6 +15,8 @@ import type {
   SettingsInput,
   SubjectInput,
   PlanBlockInput,
+  SupplyInput,
+  AssessmentInput,
 } from "./schemas";
 
 /* ----------------------------- Subjects ------------------------------ */
@@ -131,6 +133,30 @@ export function updatePlanBlock(id: string, patch: Partial<PlanBlockInput>) {
 }
 export function deletePlanBlock(id: string) {
   return removeDoc(COLLECTIONS.dailyPlan, id);
+}
+
+/* ---------------------- School supplies (준비물) --------------------- */
+
+export function addSupply(input: SupplyInput) {
+  return createDoc(COLLECTIONS.supplies, input);
+}
+export function updateSupply(id: string, patch: Partial<SupplyInput>) {
+  return patchDoc(COLLECTIONS.supplies, id, patch);
+}
+export function deleteSupply(id: string) {
+  return removeDoc(COLLECTIONS.supplies, id);
+}
+
+/* --------------------- Assessments (수행평가) ------------------------ */
+
+export function addAssessment(input: AssessmentInput) {
+  return createDoc(COLLECTIONS.assessments, input);
+}
+export function updateAssessment(id: string, patch: Partial<AssessmentInput>) {
+  return patchDoc(COLLECTIONS.assessments, id, patch);
+}
+export function deleteAssessment(id: string) {
+  return removeDoc(COLLECTIONS.assessments, id);
 }
 
 /* ---------------------------- Study logs ----------------------------- */

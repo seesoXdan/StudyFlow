@@ -11,6 +11,39 @@ export const subjectSchema = z.object({
 });
 export type SubjectInput = z.infer<typeof subjectSchema>;
 
+export const supplySchema = z
+  .object({
+    subjectId: z.string().optional(),
+    title: z.string().trim().min(1, required("준비물/공지 내용")).max(80),
+    startDate: z.string().min(1, "시작일을 선택해 주세요"),
+    endDate: z.string().min(1, "종료일을 선택해 주세요"),
+    memo: z.string().max(500).optional(),
+    done: z.boolean().default(false),
+    fileData: z.string().optional(),
+    fileName: z.string().optional(),
+    fileType: z.string().optional(),
+  })
+  .refine((v) => v.endDate >= v.startDate, {
+    message: "종료일은 시작일보다 빠를 수 없어요",
+    path: ["endDate"],
+  });
+export type SupplyInput = z.infer<typeof supplySchema>;
+
+export const assessmentSchema = z
+  .object({
+    subjectId: z.string().optional(),
+    title: z.string().trim().min(1, required("수행평가 내용")).max(80),
+    startDate: z.string().min(1, "시작일을 선택해 주세요"),
+    endDate: z.string().min(1, "종료일을 선택해 주세요"),
+    memo: z.string().max(500).optional(),
+    done: z.boolean().default(false),
+  })
+  .refine((v) => v.endDate >= v.startDate, {
+    message: "종료일은 시작일보다 빠를 수 없어요",
+    path: ["endDate"],
+  });
+export type AssessmentInput = z.infer<typeof assessmentSchema>;
+
 export const planBlockSchema = z
   .object({
     date: z.string().min(1, "날짜를 선택해 주세요"),
