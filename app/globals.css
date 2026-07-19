@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Native system font stack — Apple-like, Korean-friendly, no web fetch */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+      "Pretendard", "Segoe UI", Roboto, "Noto Sans KR", "Malgun Gothic",
+      sans-serif;
+
+    /* Surfaces */
+    --background: 210 40% 98%; /* #F8FAFC */
+    --foreground: 222 47% 11%; /* slate-900 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%; /* soft gray cards */
+    --muted-foreground: 215 16% 47%; /* #64748B */
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --accent: 173 80% 96%;
+    --accent-foreground: 173 80% 24%;
+
+    /* Brand */
+    --primary: 173 80% 40%; /* #14B8A6 teal */
+    --primary-foreground: 0 0% 100%;
+
+    --blue: 221 83% 53%; /* #2563EB */
+    --blue-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%; /* #22C55E */
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%; /* #F59E0B */
+    --warning-foreground: 0 0% 100%;
+
+    --danger: 0 84% 60%; /* #EF4444 */
+    --danger-foreground: 0 0% 100%;
+
+    /* Lines & focus */
+    --border: 214 32% 91%; /* slate-200 */
+    --input: 214 32% 91%;
+    --ring: 173 80% 40%;
+
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%; /* slate-900 */
+    --foreground: 210 40% 98%;
+
+    --card: 217 33% 17%; /* slate-800 */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 65%;
+
+    --secondary: 217 33% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --accent: 173 60% 20%;
+    --accent-foreground: 173 80% 85%;
+
+    --primary: 173 70% 45%;
+    --primary-foreground: 222 47% 11%;
+
+    --blue: 217 91% 60%;
+    --blue-foreground: 222 47% 11%;
+
+    --success: 142 69% 50%;
+    --success-foreground: 222 47% 11%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 222 47% 11%;
+
+    --danger: 0 84% 65%;
+    --danger-foreground: 222 47% 11%;
+
+    --border: 217 33% 24%;
+    --input: 217 33% 24%;
+    --ring: 173 70% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+  /* Respect iOS safe areas for the installed PWA */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Thin, unobtrusive scrollbars */
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
