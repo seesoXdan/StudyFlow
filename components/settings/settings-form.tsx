@@ -203,7 +203,7 @@ export function SettingsForm() {
       </Card>
 
       <p className="px-1 text-center text-xs text-muted-foreground">
-        StudyFlow · 가족 공용 · 로그인 없이 사용
+        서진Flow · 가족 공용 · 로그인 없이 사용
       </p>
     </div>
   );
