@@ -37,12 +37,15 @@ export function Sidebar() {
   const pathname = usePathname();
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-card/60 backdrop-blur lg:flex">
-      <div className="flex items-center gap-2.5 px-6 py-5">
+      <Link
+        href="/"
+        className="flex items-center gap-2.5 px-6 py-5 transition-opacity hover:opacity-80"
+      >
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <BookOpen className="h-5 w-5" strokeWidth={2.2} />
         </div>
         <span className="text-lg font-bold tracking-tight">서진Flow</span>
-      </div>
+      </Link>
 
       <nav className="flex-1 space-y-1 px-3 py-2">
         {PRIMARY_NAV.map((item) => (

@@ -1,11 +1,5 @@
-import { StudyList } from "@/components/study/study-list";
-import { SubjectManager } from "@/components/study/subject-manager";
+import { StudyView } from "@/components/study/study-view";
 
 export default function StudyPage() {
-  return (
-    <div className="space-y-6">
-      <StudyList />
-      <SubjectManager />
-    </div>
-  );
+  return <StudyView />;
 }

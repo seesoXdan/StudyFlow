@@ -7,6 +7,7 @@ import { SetupNotice } from "@/components/home/setup-notice";
 import { TodayOverview } from "@/components/home/today-overview";
 import { TodayStudy } from "@/components/home/today-study";
 import { TodayHomework } from "@/components/home/today-homework";
+import { TodayEvents } from "@/components/home/today-events";
 import { ReflectionStatus } from "@/components/home/reflection-status";
 
 export default function HomePage() {
@@ -20,6 +21,7 @@ export default function HomePage() {
         <Link href="/study">빠른 공부 시작</Link>
       </Button>
 
+      <TodayEvents />
       <TodayStudy />
       <TodayHomework />
       <ReflectionStatus />
