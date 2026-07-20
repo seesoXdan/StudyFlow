@@ -11,7 +11,7 @@ import { MonthView } from "./month-view";
 import { DayDetail } from "./day-detail";
 import { DayEvents } from "./day-events";
 import { useSubjectMap } from "@/hooks/use-data";
-import { useCalendarData, getDayAgg } from "@/hooks/use-calendar";
+import { useCalendarData, getDayAgg, useEventBars } from "@/hooks/use-calendar";
 import { buildWeek, STATUS_COLOR, WEEKDAY_HEADERS } from "@/lib/calendar";
 import { toISODate, todayISO, formatShortDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ export function Calendar() {
   const [selectedISO, setSelectedISO] = useState(today);
   const [addNonce, setAddNonce] = useState(0);
   const { byDate, loading } = useCalendarData();
+  const eventBars = useEventBars();
   const { subjectMap } = useSubjectMap();
 
   const selectedDate = parseISO(selectedISO);
@@ -73,6 +74,7 @@ export function Calendar() {
           selectedISO={selectedISO}
           onSelect={handleSelect}
           byDate={byDate}
+          eventBars={eventBars}
         />
         <p className="px-1 text-center text-xs text-muted-foreground">
           날짜를 한 번 더 누르면 일정을 바로 추가할 수 있어요.

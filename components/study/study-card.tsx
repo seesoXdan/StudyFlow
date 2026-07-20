@@ -55,6 +55,13 @@ export function StudyCard({
               <SubjectDot color={subject?.color} />
               {subject?.name ?? "미지정"}
             </span>
+            {task.startTime && (
+              <span className="inline-flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                {task.startTime}
+                {task.endTime ? `~${task.endTime}` : ""}
+              </span>
+            )}
             {task.studyMinutes > 0 && (
               <span className="inline-flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />

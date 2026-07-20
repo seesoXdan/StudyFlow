@@ -16,6 +16,7 @@ import { EventFormDialog } from "@/components/forms/event-form-dialog";
 import { useEvents } from "@/hooks/use-data";
 import { addEvent, updateEvent, deleteEvent } from "@/lib/repositories";
 import { eventCategoryColor } from "@/lib/constants";
+import { formatRange } from "@/lib/date";
 import type { CalendarEvent } from "@/types";
 import type { EventInput } from "@/lib/schemas";
 
@@ -41,7 +42,10 @@ export function DayEvents({
   const items = useMemo(
     () =>
       events
-        .filter((e) => e.date === date)
+        .filter((e) => {
+          const end = e.endDate && e.endDate >= e.date ? e.endDate : e.date;
+          return e.date <= date && date <= end;
+        })
         .sort((a, b) => (a.startTime || "99").localeCompare(b.startTime || "99")),
     [events, date]
   );
@@ -71,8 +75,11 @@ export function DayEvents({
                 />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{e.title}</p>
-                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                     <span>{e.category}</span>
+                    {e.endDate && e.endDate !== e.date && (
+                      <span>· {formatRange(e.date, e.endDate)}</span>
+                    )}
                     {e.startTime && (
                       <span className="inline-flex items-center gap-1">
                         <Clock className="h-3 w-3" />
@@ -128,6 +135,7 @@ export function DayEvents({
           editRow
             ? {
                 date: editRow.date,
+                endDate: editRow.endDate ?? "",
                 startTime: editRow.startTime ?? "",
                 endTime: editRow.endTime ?? "",
                 title: editRow.title,

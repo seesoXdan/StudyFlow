@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  BookOpen,
-  CheckSquare,
-  ClipboardList,
-  NotebookPen,
-  ChevronRight,
-} from "lucide-react";
+import { BookOpen, CheckSquare, NotebookPen, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { SubjectDot } from "@/components/cards/subject-dot";
 import { MOOD_EMOJI } from "@/lib/constants";
@@ -48,7 +42,6 @@ export function DayDetail({
   const empty =
     agg.study.length === 0 &&
     agg.homework.length === 0 &&
-    agg.plan.length === 0 &&
     !agg.reflection;
 
   return (
@@ -103,22 +96,6 @@ export function DayDetail({
                     color={subjectMap.get(h.subjectId)?.color}
                     label={h.name}
                     done={h.completed}
-                  />
-                ))}
-              </section>
-            )}
-
-            {agg.plan.length > 0 && (
-              <section>
-                <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                  <ClipboardList className="h-3.5 w-3.5" /> 하루 계획
-                </p>
-                {agg.plan.map((b) => (
-                  <Row
-                    key={b.id}
-                    color={b.subjectId ? subjectMap.get(b.subjectId)?.color : undefined}
-                    label={`${b.startTime} ${b.title}`}
-                    done={b.done}
                   />
                 ))}
               </section>

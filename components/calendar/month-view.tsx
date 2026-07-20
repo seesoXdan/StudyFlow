@@ -12,8 +12,21 @@ import {
   isSameMonth,
 } from "@/lib/calendar";
 import { toISODate, todayISO } from "@/lib/date";
-import { getDayAgg, type DayAgg } from "@/hooks/use-calendar";
+import { getDayAgg, type DayAgg, type EventBar } from "@/hooks/use-calendar";
 import { cn } from "@/lib/utils";
+
+function barClass(kind: EventBar["kind"]) {
+  switch (kind) {
+    case "single":
+      return "mx-1 rounded-full";
+    case "start":
+      return "ml-1 rounded-l-full";
+    case "end":
+      return "mr-1 rounded-r-full";
+    default:
+      return "";
+  }
+}
 
 export function MonthView({
   monthDate,
@@ -21,12 +34,14 @@ export function MonthView({
   selectedISO,
   onSelect,
   byDate,
+  eventBars,
 }: {
   monthDate: Date;
   setMonthDate: (d: Date) => void;
   selectedISO: string;
   onSelect: (iso: string) => void;
   byDate: Map<string, DayAgg>;
+  eventBars: Map<string, EventBar[]>;
 }) {
   const weeks = buildMonthMatrix(monthDate);
   const today = todayISO();
@@ -75,6 +90,7 @@ export function MonthView({
             const isToday = iso === today;
             const selected = iso === selectedISO;
             const status = getDayAgg(byDate, iso).status;
+            const bars = eventBars.get(iso) ?? [];
             return (
               <button
                 key={iso}
@@ -90,15 +106,46 @@ export function MonthView({
                 )}
               >
                 <span>{day.getDate()}</span>
+
+                {/* Completion status — small corner dot */}
                 {status !== "none" && (
                   <span
-                    className="absolute bottom-1.5 h-1.5 w-1.5 rounded-full"
+                    className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full"
                     style={{
                       backgroundColor: selected
                         ? "rgba(255,255,255,0.9)"
                         : STATUS_COLOR[status],
                     }}
                   />
+                )}
+
+                {/* Event bars (multi-day events span edge to edge) */}
+                {bars.length > 0 && (
+                  <div className="absolute inset-x-0 bottom-1 flex flex-col gap-0.5">
+                    {bars.slice(0, 2).map((b, bi) => (
+                      <div
+                        key={bi}
+                        className={cn("h-[3px]", barClass(b.kind))}
+                        style={{
+                          backgroundColor: selected
+                            ? "rgba(255,255,255,0.9)"
+                            : b.color,
+                        }}
+                      />
+                    ))}
+                    {bars.length > 2 && (
+                      <span
+                        className={cn(
+                          "px-1 text-[8px] leading-none",
+                          selected
+                            ? "text-primary-foreground/80"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        +{bars.length - 2}
+                      </span>
+                    )}
+                  </div>
                 )}
               </button>
             );

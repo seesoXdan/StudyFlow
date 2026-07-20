@@ -57,6 +57,8 @@ export function StudyFormDialog({
       subjectId: "",
       title: "",
       date: todayISO(),
+      startTime: "",
+      endTime: "",
       goalMinutes: undefined,
       studyMinutes: 0,
       memo: "",
@@ -71,6 +73,8 @@ export function StudyFormDialog({
         subjectId: subjects[0]?.id ?? "",
         title: "",
         date: todayISO(),
+        startTime: "",
+        endTime: "",
         studyMinutes: 0,
         memo: "",
         completed: false,
@@ -155,6 +159,28 @@ export function StudyFormDialog({
                 {...register("goalMinutes")}
               />
               <FieldError message={errors.goalMinutes?.message} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="study-start">시작 시간 (선택)</Label>
+              <Input
+                id="study-start"
+                type="time"
+                className="mt-1.5"
+                {...register("startTime")}
+              />
+            </div>
+            <div>
+              <Label htmlFor="study-end">종료 시간 (선택)</Label>
+              <Input
+                id="study-end"
+                type="time"
+                className="mt-1.5"
+                {...register("endTime")}
+              />
+              <FieldError message={errors.endTime?.message} />
             </div>
           </div>
 

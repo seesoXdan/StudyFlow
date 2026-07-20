@@ -60,7 +60,11 @@ export function StudyWeekBoard() {
       if (list) list.push(t);
     });
     m.forEach((list) =>
-      list.sort((a, b) => Number(a.completed) - Number(b.completed))
+      list.sort(
+        (a, b) =>
+          Number(a.completed) - Number(b.completed) ||
+          (a.startTime || "99").localeCompare(b.startTime || "99")
+      )
     );
     return m;
   }, [week, tasks]);
@@ -231,6 +235,7 @@ export function StudyWeekBoard() {
                           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                             <SubjectDot color={subject?.color} />
                             {subject?.name ?? "미지정"}
+                            {task.startTime ? ` · ${task.startTime}` : ""}
                           </span>
                         </div>
                         <DropdownMenu>
@@ -286,6 +291,8 @@ export function StudyWeekBoard() {
                 subjectId: editRow.subjectId,
                 title: editRow.title,
                 date: editRow.date,
+                startTime: editRow.startTime ?? "",
+                endTime: editRow.endTime ?? "",
                 goalMinutes: editRow.goalMinutes,
                 studyMinutes: editRow.studyMinutes,
                 memo: editRow.memo ?? "",

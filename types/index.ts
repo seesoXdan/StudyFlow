@@ -52,7 +52,8 @@ export type Assessment = RangeItem;
 /** A general calendar schedule entry (과외, 개인활동 등). */
 export interface CalendarEvent {
   id: ID;
-  date: ISODate;
+  date: ISODate; // 시작일
+  endDate?: ISODate; // 종료일 (여러 날 일정이면 사용, 없으면 하루)
   startTime?: string; // "16:00" (optional; empty = 종일)
   endTime?: string;
   title: string;
@@ -81,6 +82,8 @@ export interface StudyTask {
   subjectId: ID;
   title: string;
   date: ISODate;
+  startTime?: string; // "19:00" (선택)
+  endTime?: string; // "20:00" (선택)
   goalMinutes?: number; // study goal
   studyMinutes: number; // actual time spent
   memo?: string;

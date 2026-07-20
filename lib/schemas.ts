@@ -47,11 +47,16 @@ export type AssessmentInput = z.infer<typeof assessmentSchema>;
 export const eventSchema = z
   .object({
     date: z.string().min(1, "날짜를 선택해 주세요"),
+    endDate: z.string().optional().or(z.literal("")),
     startTime: z.string().regex(/^\d{2}:\d{2}$/).optional().or(z.literal("")),
     endTime: z.string().regex(/^\d{2}:\d{2}$/).optional().or(z.literal("")),
     title: z.string().trim().min(1, required("일정 내용")).max(60),
     category: z.string().min(1).default("개인활동"),
     memo: z.string().max(300).optional(),
+  })
+  .refine((v) => !v.endDate || v.endDate >= v.date, {
+    message: "종료일은 시작일보다 빠를 수 없어요",
+    path: ["endDate"],
   })
   .refine(
     (v) => !v.startTime || !v.endTime || v.endTime >= v.startTime,
@@ -74,15 +79,22 @@ export const planBlockSchema = z
   });
 export type PlanBlockInput = z.infer<typeof planBlockSchema>;
 
-export const studyTaskSchema = z.object({
-  subjectId: z.string().min(1, "과목을 선택해 주세요"),
-  title: z.string().trim().min(1, required("공부 제목")).max(60),
-  date: z.string().min(1, "날짜를 선택해 주세요"),
-  goalMinutes: z.coerce.number().int().min(0).max(1440).optional(),
-  studyMinutes: z.coerce.number().int().min(0).max(1440).default(0),
-  memo: z.string().max(500).optional(),
-  completed: z.boolean().default(false),
-});
+export const studyTaskSchema = z
+  .object({
+    subjectId: z.string().min(1, "과목을 선택해 주세요"),
+    title: z.string().trim().min(1, required("공부 제목")).max(60),
+    date: z.string().min(1, "날짜를 선택해 주세요"),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/).optional().or(z.literal("")),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/).optional().or(z.literal("")),
+    goalMinutes: z.coerce.number().int().min(0).max(1440).optional(),
+    studyMinutes: z.coerce.number().int().min(0).max(1440).default(0),
+    memo: z.string().max(500).optional(),
+    completed: z.boolean().default(false),
+  })
+  .refine(
+    (v) => !v.startTime || !v.endTime || v.endTime >= v.startTime,
+    { message: "종료 시간은 시작 시간보다 늦어야 해요", path: ["endTime"] }
+  );
 export type StudyTaskInput = z.infer<typeof studyTaskSchema>;
 
 export const homeworkSchema = z.object({

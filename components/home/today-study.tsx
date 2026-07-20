@@ -24,7 +24,11 @@ export function TodayStudy() {
     () =>
       tasks
         .filter((t) => t.date === today)
-        .sort((a, b) => Number(a.completed) - Number(b.completed)),
+        .sort(
+          (a, b) =>
+            Number(a.completed) - Number(b.completed) ||
+            (a.startTime || "99").localeCompare(b.startTime || "99")
+        ),
     [tasks, today]
   );
 
@@ -81,6 +85,12 @@ export function TodayStudy() {
                         <SubjectDot color={subject?.color} />
                         {subject?.name ?? "미지정"}
                       </span>
+                      {task.startTime && (
+                        <span>
+                          · {task.startTime}
+                          {task.endTime ? `~${task.endTime}` : ""}
+                        </span>
+                      )}
                       {task.studyMinutes > 0 && (
                         <span>· {formatMinutes(task.studyMinutes)}</span>
                       )}

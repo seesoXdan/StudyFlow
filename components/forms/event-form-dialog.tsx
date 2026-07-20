@@ -53,6 +53,7 @@ export function EventFormDialog({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       date,
+      endDate: "",
       startTime: "",
       endTime: "",
       title: "",
@@ -66,6 +67,7 @@ export function EventFormDialog({
     if (open) {
       reset({
         date,
+        endDate: "",
         startTime: "",
         endTime: "",
         title: "",
@@ -132,11 +134,26 @@ export function EventFormDialog({
             <FieldError message={errors.title?.message} />
           </div>
 
-          <div>
-            <Label htmlFor="ev-date">날짜</Label>
-            <Input id="ev-date" type="date" className="mt-1.5" {...register("date")} />
-            <FieldError message={errors.date?.message} />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="ev-date">시작일</Label>
+              <Input id="ev-date" type="date" className="mt-1.5" {...register("date")} />
+              <FieldError message={errors.date?.message} />
+            </div>
+            <div>
+              <Label htmlFor="ev-enddate">종료일 (선택)</Label>
+              <Input
+                id="ev-enddate"
+                type="date"
+                className="mt-1.5"
+                {...register("endDate")}
+              />
+              <FieldError message={errors.endDate?.message} />
+            </div>
           </div>
+          <p className="-mt-2 text-xs text-muted-foreground">
+            여러 날 일정이면 종료일을 지정하세요. 캘린더에 막대로 표시돼요.
+          </p>
 
           <div className="grid grid-cols-2 gap-3">
             <div>

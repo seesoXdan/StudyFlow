@@ -43,9 +43,13 @@ export function StudyList() {
       else if (t.date > today) g.upcoming.push(t);
       else g.past.push(t);
     }
-    g.today.sort((a, b) => Number(a.completed) - Number(b.completed));
-    g.upcoming.sort((a, b) => a.date.localeCompare(b.date));
-    g.past.sort((a, b) => b.date.localeCompare(a.date));
+    const byTime = (a: Row, b: Row) =>
+      (a.startTime || "99").localeCompare(b.startTime || "99");
+    g.today.sort(
+      (a, b) => Number(a.completed) - Number(b.completed) || byTime(a, b)
+    );
+    g.upcoming.sort((a, b) => a.date.localeCompare(b.date) || byTime(a, b));
+    g.past.sort((a, b) => b.date.localeCompare(a.date) || byTime(a, b));
     return g;
   }, [tasks]);
 
@@ -136,6 +140,8 @@ export function StudyList() {
                 subjectId: editTask.subjectId,
                 title: editTask.title,
                 date: editTask.date,
+                startTime: editTask.startTime ?? "",
+                endTime: editTask.endTime ?? "",
                 goalMinutes: editTask.goalMinutes,
                 studyMinutes: editTask.studyMinutes,
                 memo: editTask.memo ?? "",
