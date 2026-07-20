@@ -97,7 +97,7 @@ export function MonthView({
                 type="button"
                 onClick={() => onSelect(iso)}
                 className={cn(
-                  "relative flex aspect-square flex-col items-center justify-center rounded-xl text-sm transition-colors",
+                  "relative flex aspect-square flex-col items-center gap-0.5 rounded-xl pt-1.5 text-sm transition-colors",
                   !inMonth && "text-muted-foreground/40",
                   selected
                     ? "bg-primary text-primary-foreground font-semibold"
@@ -105,7 +105,7 @@ export function MonthView({
                   isToday && !selected && "font-bold text-primary"
                 )}
               >
-                <span>{day.getDate()}</span>
+                <span className="leading-none">{day.getDate()}</span>
 
                 {/* Completion status — small corner dot */}
                 {status !== "none" && (
@@ -119,24 +119,37 @@ export function MonthView({
                   />
                 )}
 
-                {/* Event bars (multi-day events span edge to edge) */}
+                {/* Events — single-day shown as text, multi-day as a bar */}
                 {bars.length > 0 && (
-                  <div className="absolute inset-x-0 bottom-1 flex flex-col gap-0.5">
-                    {bars.slice(0, 2).map((b, bi) => (
-                      <div
-                        key={bi}
-                        className={cn("h-[3px]", barClass(b.kind))}
-                        style={{
-                          backgroundColor: selected
-                            ? "rgba(255,255,255,0.9)"
-                            : b.color,
-                        }}
-                      />
-                    ))}
+                  <div className="w-full space-y-0.5 px-0.5">
+                    {bars.slice(0, 2).map((b, bi) =>
+                      b.kind === "single" ? (
+                        <span
+                          key={bi}
+                          className="block truncate text-[9px] leading-tight"
+                          style={{
+                            color: selected ? "rgba(255,255,255,0.95)" : b.color,
+                          }}
+                        >
+                          {b.title}
+                        </span>
+                      ) : (
+                        <div
+                          key={bi}
+                          className={cn("h-[3px]", barClass(b.kind))}
+                          style={{
+                            backgroundColor: selected
+                              ? "rgba(255,255,255,0.9)"
+                              : b.color,
+                          }}
+                          title={b.title}
+                        />
+                      )
+                    )}
                     {bars.length > 2 && (
                       <span
                         className={cn(
-                          "px-1 text-[8px] leading-none",
+                          "block text-[8px] leading-none",
                           selected
                             ? "text-primary-foreground/80"
                             : "text-muted-foreground"

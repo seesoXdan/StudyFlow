@@ -6,15 +6,15 @@ import { AppShell } from "@/components/layout/app-shell";
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export const metadata: Metadata = {
-  title: "서진Flow — 공부 플래너",
+  title: "서진 대학가자 — 공부 플래너",
   description:
-    "고등학생을 위한 깔끔하고 빠른 공부 플래너. 공부·숙제·시간표·하루계획·리포트를 한 곳에서.",
-  applicationName: "서진Flow",
+    "고등학생을 위한 깔끔하고 빠른 공부 플래너. 공부·숙제·시간표·리포트를 한 곳에서.",
+  applicationName: "서진 대학가자",
   manifest: `${basePath}/manifest.webmanifest`,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "서진Flow",
+    title: "서진 대학가자",
   },
   icons: {
     icon: `${basePath}/icons/icon-192.png`,

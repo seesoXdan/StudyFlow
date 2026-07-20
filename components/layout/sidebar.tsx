@@ -44,7 +44,7 @@ export function Sidebar() {
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <BookOpen className="h-5 w-5" strokeWidth={2.2} />
         </div>
-        <span className="text-lg font-bold tracking-tight">서진Flow</span>
+        <span className="text-lg font-bold tracking-tight">서진 대학가자</span>
       </Link>
 
       <nav className="flex-1 space-y-1 px-3 py-2">

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MonthView } from "./month-view";
 import { DayDetail } from "./day-detail";
 import { DayEvents } from "./day-events";
+import { WeekEvents } from "./week-events";
 import { useSubjectMap } from "@/hooks/use-data";
 import { useCalendarData, getDayAgg, useEventBars } from "@/hooks/use-calendar";
 import { buildWeek, STATUS_COLOR, WEEKDAY_HEADERS } from "@/lib/calendar";
@@ -27,6 +28,7 @@ export function Calendar() {
 
   const selectedDate = parseISO(selectedISO);
   const week = buildWeek(selectedDate);
+  const weekIsos = week.map((d) => toISODate(d));
 
   function shiftDay(delta: number) {
     setSelectedISO(toISODate(addDays(selectedDate, delta)));
@@ -160,7 +162,12 @@ export function Calendar() {
             </div>
           </CardContent>
         </Card>
-        {detail}
+        <WeekEvents weekIsos={weekIsos} addDate={selectedISO} />
+        <DayDetail
+          iso={selectedISO}
+          agg={getDayAgg(byDate, selectedISO)}
+          subjectMap={subjectMap}
+        />
       </TabsContent>
 
       <TabsContent value="day" className="mt-0 space-y-4">

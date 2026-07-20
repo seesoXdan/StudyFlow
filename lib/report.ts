@@ -65,11 +65,9 @@ export function completion(items: { completed: boolean }[]) {
   return { total, done, rate };
 }
 
-/** Current consecutive-day study streak (days with any recorded study time). */
+/** Current consecutive-day study streak (days with any completed study task). */
 export function studyStreak(tasks: StudyTask[]): number {
-  const days = new Set(
-    tasks.filter((t) => (t.studyMinutes || 0) > 0).map((t) => t.date)
-  );
+  const days = new Set(tasks.filter((t) => t.completed).map((t) => t.date));
   let streak = 0;
   let cursor = new Date();
   if (!days.has(todayISO())) cursor = addDays(cursor, -1);

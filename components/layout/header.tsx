@@ -10,7 +10,7 @@ function usePageTitle() {
   const pathname = usePathname();
   const all = [...PRIMARY_NAV, ...SECONDARY_NAV];
   const match = all.find((i) => isActivePath(pathname, i.href));
-  return match?.label ?? "서진Flow";
+  return match?.label ?? "서진 대학가자";
 }
 
 export function Header() {
