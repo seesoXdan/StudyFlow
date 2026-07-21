@@ -284,18 +284,27 @@ async function handleFile(e){
 }
 function setBar(id,pct){document.getElementById(id).style.width=Math.min(100,pct)+'%'}
 
-/* parse OCR text -> [{en,ko}] : split latin vs hangul per line */
+/* parse OCR text -> [{en,ko}] : keep only clean word+meaning pairs */
 function parseVocab(text){
-  const out=[];
+  const out=[]; const seen=new Set();
   text.split(/\r?\n/).forEach(raw=>{
     let line=raw.trim();
     if(!line)return;
-    line=line.replace(/^\s*\d+[\.\)]\s*/,''); // strip leading numbering
-    const en=(line.match(/[A-Za-z][A-Za-z'’\-\s]*[A-Za-z]|[A-Za-z]/g)||[])
-              .join(' ').replace(/\s+/g,' ').trim();
-    const ko=(line.match(/[가-힣][가-힣\s,]*/g)||[])
-              .join(' ').replace(/\s+/g,' ').replace(/[,\s]+$/,'').trim();
-    if(en||ko)out.push({en,ko});
+    line=line.replace(/^\s*\d+\s*[\.\):]\s*/,''); // strip leading numbering "1." "2)"
+    // english word(s)
+    let en=(line.match(/[A-Za-z][A-Za-z'’\-]*(?:\s+[A-Za-z'’\-]+)*/g)||[])
+            .join(' ').replace(/\s+/g,' ').trim();
+    // korean meaning
+    let ko=(line.match(/[가-힣][가-힣\s,~]*/g)||[])
+            .join(' ').replace(/\s+/g,' ').replace(/[,\s~]+$/,'').trim();
+    // drop stray single letters / punctuation noise
+    if(en.replace(/[^A-Za-z]/g,'').length<2) en='';
+    // keep only real pairs (영어 + 뜻이 함께 있는 줄만)
+    if(!en||!ko) return;
+    const key=en.toLowerCase()+'|'+ko;
+    if(seen.has(key))return;
+    seen.add(key);
+    out.push({en,ko});
   });
   return out.length?out:[{en:'',ko:''}];
 }
