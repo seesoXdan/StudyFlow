@@ -3,89 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>서진 공부학습 · 영어단어</title>
+<title>서진 대학가자 · 영어단어</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js"></script>
 <style>
   :root{
-    --bg:#f5f7fb; --card:#ffffff; --line:#e6e9f0; --ink:#1f2b3a; --sub:#6b7688;
-    --blue:#3b82f6; --blue-d:#2563eb; --green:#22c55e; --green-d:#16a34a;
+    --bg:#F8FAFC; --card:#ffffff; --line:#e2e8f0; --ink:#0f172a; --sub:#64748b;
+    --soft:#f1f5f9;
+    --primary:#14B8A6; --primary-d:#0d9488;
+    --green:#22c55e; --green-d:#16a34a;
     --red:#ef4444; --amber:#f59e0b; --purple:#8b5cf6;
-    --shadow:0 6px 20px rgba(30,50,90,.08);
+    --shadow:0 1px 3px rgba(15,23,42,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f172a; --card:#1e293b; --line:#334155; --ink:#f8fafc; --sub:#94a3b8;
+      --soft:#334155; --shadow:0 1px 3px rgba(0,0,0,.3);
+    }
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{margin:0;font-family:'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  body{margin:0;font-family:-apple-system,'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Malgun Gothic',system-ui,sans-serif;
     background:var(--bg);color:var(--ink);line-height:1.5}
   .wrap{max-width:560px;margin:0 auto;padding:16px 16px 48px}
-  h1{font-size:22px;margin:6px 0 2px}
+  h1{font-size:22px;margin:6px 0 2px;font-weight:800}
   .muted{color:var(--sub);font-size:14px}
   .hidden{display:none!important}
 
-  /* cards */
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
     padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
   .row{display:flex;align-items:center;gap:12px}
   .grow{flex:1;min-width:0}
 
-  /* homework list */
-  .hw{display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;
-    background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);
-    margin-bottom:12px;cursor:pointer;transition:.15s}
-  .hw:active{transform:scale(.99)}
-  .hw .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
-    font-size:22px;flex:none}
-  .hw .t{font-weight:700;font-size:17px}
-  .hw .s{font-size:13px;color:var(--sub)}
-  .hw .go{color:var(--sub);font-size:20px}
-  .hw.feature{border:2px solid var(--blue);background:linear-gradient(180deg,#f0f6ff,#fff)}
-
-  /* buttons */
   button{font-family:inherit}
-  .btn{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;
+  .btn{border:0;border-radius:14px;padding:13px 16px;font-size:16px;font-weight:700;
     cursor:pointer;transition:.15s;width:100%}
   .btn:active{transform:scale(.98)}
-  .btn.blue{background:var(--blue);color:#fff}
+  .btn.blue{background:var(--primary);color:#fff}
   .btn.green{background:var(--green);color:#fff}
-  .btn.gray{background:#eef1f6;color:var(--ink)}
-  .btn.red{background:#fee2e2;color:var(--red)}
+  .btn.gray{background:var(--soft);color:var(--ink)}
+  .btn.red{background:rgba(239,68,68,.12);color:var(--red)}
   .btn.sm{padding:9px 12px;font-size:14px;width:auto}
-  .btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--line)}
+  .btn.ghost{background:transparent;color:var(--primary);border:1px solid var(--line)}
   .btnrow{display:flex;gap:10px}
   .btnrow .btn{flex:1}
 
-  .back{background:none;border:0;color:var(--blue);font-size:15px;font-weight:600;
+  .back{background:none;border:0;color:var(--primary);font-size:15px;font-weight:600;
     cursor:pointer;padding:8px 0;margin-bottom:2px}
 
-  /* upload */
-  .drop{border:2px dashed var(--blue);border-radius:16px;padding:26px 16px;text-align:center;
-    background:#f0f6ff;cursor:pointer}
-  .drop .big{font-size:40px}
+  .uploadbox{border:1px solid var(--line);border-radius:16px;padding:18px 16px;text-align:center;
+    background:var(--card);box-shadow:var(--shadow)}
+  .uploadbox .big{font-size:38px}
   input[type=file]{display:none}
-  #preview{max-width:100%;border-radius:12px;margin-top:12px;display:none}
+  #preview{max-width:100%;border-radius:12px;margin-top:12px;display:none;border:1px solid var(--line)}
 
-  /* progress */
-  .bar{height:10px;background:#e8edf5;border-radius:99px;overflow:hidden;margin-top:10px}
-  .bar > i{display:block;height:100%;background:var(--blue);width:0;transition:.2s}
+  .bar{height:10px;background:var(--soft);border-radius:99px;overflow:hidden;margin-top:10px}
+  .bar > i{display:block;height:100%;background:var(--primary);width:0;transition:.2s}
 
-  /* edit table */
   table{width:100%;border-collapse:collapse;margin-top:6px}
   th,td{padding:6px 4px;text-align:left}
   th{font-size:12px;color:var(--sub);border-bottom:1px solid var(--line)}
   td input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;
-    font-size:15px;background:#fbfcfe}
+    font-size:15px;background:var(--bg);color:var(--ink)}
   td.num{width:26px;color:var(--sub);text-align:center;font-size:13px}
   td.del{width:34px;text-align:center}
   .x{background:none;border:0;color:var(--red);font-size:18px;cursor:pointer}
 
-  .pill{display:inline-block;background:#eef1f6;color:var(--sub);border-radius:99px;
+  .pill{display:inline-block;background:var(--soft);color:var(--sub);border-radius:99px;
     padding:3px 10px;font-size:12px;margin-left:6px}
 
-  /* quiz */
   .quizhead{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--sub)}
   .prompt{font-size:15px;color:var(--sub);margin-top:18px}
   .word{font-size:34px;font-weight:800;margin:6px 0 4px;word-break:break-word}
   .ansbox{font-size:22px;padding:14px;text-align:center;border:2px solid var(--line);
-    border-radius:14px;width:100%;margin-top:8px}
-  .ansbox:focus{outline:none;border-color:var(--blue)}
+    border-radius:14px;width:100%;margin-top:8px;background:transparent;color:var(--ink)}
+  .ansbox:focus{outline:none;border-color:var(--primary)}
   .fb{text-align:center;font-size:17px;font-weight:700;margin-top:12px;min-height:24px}
   .fb.ok{color:var(--green-d)}
   .fb.no{color:var(--red)}
@@ -93,17 +83,15 @@
     font-weight:700;color:#fff}
   .r1{background:var(--purple)} .r2{background:var(--amber)}
 
-  /* result */
   .score{font-size:48px;font-weight:800;text-align:center}
   .wrongitem{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--line);font-size:15px}
   .wrongitem .en{font-weight:700}
   .wrongitem .mine{color:var(--red);font-size:13px}
 
   .empty{text-align:center;color:var(--sub);padding:24px 0}
-  .setrow{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);
-    border-radius:12px;margin-bottom:10px}
-  .chk{width:20px;height:20px;flex:none}
-  select{padding:10px;border-radius:10px;border:1px solid var(--line);font-size:15px;width:100%;background:#fff}
+  .chk{width:20px;height:20px;flex:none;accent-color:var(--primary)}
+  select{padding:10px;border-radius:10px;border:1px solid var(--line);font-size:15px;width:100%;
+    background:var(--card);color:var(--ink)}
 </style>
 </head>
 <body>
@@ -116,21 +104,21 @@
     <div style="height:14px"></div>
 
     <div class="card row" style="cursor:pointer" onclick="go('add')">
-      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:#dbeafe">📷</div>
+      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:rgba(20,184,166,.15)">📷</div>
       <div class="grow"><div style="font-weight:700;font-size:17px">단어 추가하기</div>
         <div class="s muted">시험지·단어장 사진을 찍어 올리면 자동 인식</div></div>
       <div class="go" style="color:var(--sub)">›</div>
     </div>
 
     <div class="card row" style="cursor:pointer" onclick="go('list')">
-      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:#eafaf0">🗂️</div>
+      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:rgba(34,197,94,.15)">🗂️</div>
       <div class="grow"><div style="font-weight:700;font-size:17px">단어장 <span class="pill" id="listCount">0개</span></div>
         <div class="s muted">모아둔 단어 보기·수정</div></div>
       <div class="go" style="color:var(--sub)">›</div>
     </div>
 
     <div class="card row" style="cursor:pointer" onclick="go('setup')">
-      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:#f3e8ff">📝</div>
+      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:rgba(139,92,246,.15)">📝</div>
       <div class="grow"><div style="font-weight:700;font-size:17px">시험 보기</div>
         <div class="s muted">한글→영어, 영어→한글 2번 반복</div></div>
       <div class="go" style="color:var(--sub)">›</div>
@@ -143,17 +131,24 @@
     <h1>단어 추가 📷</h1>
 
     <div id="addStep1">
-      <label class="drop" for="file">
-        <div class="big">📸</div>
-        <div style="font-weight:700;margin-top:6px">사진 찍기 / 사진 올리기</div>
-        <div class="muted" style="font-size:13px">영어단어와 뜻이 같이 있는 사진이 좋아요</div>
-      </label>
-      <input type="file" id="file" accept="image/*" capture="environment">
+      <div class="uploadbox">
+        <div class="big">📚</div>
+        <div style="font-weight:700;margin-top:6px">사진에서 단어를 자동 인식해요</div>
+        <div class="muted" style="font-size:13px;margin-bottom:14px">영어단어와 뜻이 같이 있는 사진이 좋아요</div>
+        <div class="btnrow">
+          <button class="btn blue" onclick="document.getElementById('fileCam').click()">📷 사진 찍기</button>
+          <button class="btn gray" onclick="document.getElementById('fileGal').click()">🖼️ 갤러리</button>
+        </div>
+      </div>
+      <input type="file" id="fileCam" accept="image/*" capture="environment">
+      <input type="file" id="fileGal" accept="image/*">
       <img id="preview" alt="">
       <div id="ocrProg" class="hidden">
         <div class="muted" id="ocrMsg" style="margin-top:12px">사진에서 글자를 읽는 중…</div>
         <div class="bar"><i id="ocrBar"></i></div>
       </div>
+      <div style="height:10px"></div>
+      <button class="btn ghost" onclick="showEdit([])">✏️ 사진 없이 직접 입력</button>
     </div>
 
     <div id="addStep2" class="hidden">
@@ -253,10 +248,12 @@ function refreshCounts(){
 }
 
 /* ---------- OCR ---------- */
-const fileInput=document.getElementById('file');
-fileInput.addEventListener('change',handleFile);
+const camInput=document.getElementById('fileCam');
+const galInput=document.getElementById('fileGal');
+camInput.addEventListener('change',handleFile);
+galInput.addEventListener('change',handleFile);
 function resetAdd(){
-  fileInput.value='';
+  camInput.value=''; galInput.value='';
   document.getElementById('preview').style.display='none';
   document.getElementById('ocrProg').classList.add('hidden');
   document.getElementById('addStep1').classList.remove('hidden');
