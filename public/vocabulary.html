@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서진 공부학습 · 영어단어</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js"></script>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#ffffff; --line:#e6e9f0; --ink:#1f2b3a; --sub:#6b7688;
+    --blue:#3b82f6; --blue-d:#2563eb; --green:#22c55e; --green-d:#16a34a;
+    --red:#ef4444; --amber:#f59e0b; --purple:#8b5cf6;
+    --shadow:0 6px 20px rgba(30,50,90,.08);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5}
+  .wrap{max-width:560px;margin:0 auto;padding:16px 16px 48px}
+  h1{font-size:22px;margin:6px 0 2px}
+  .muted{color:var(--sub);font-size:14px}
+  .hidden{display:none!important}
+
+  /* cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+  .row{display:flex;align-items:center;gap:12px}
+  .grow{flex:1;min-width:0}
+
+  /* homework list */
+  .hw{display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;
+    background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);
+    margin-bottom:12px;cursor:pointer;transition:.15s}
+  .hw:active{transform:scale(.99)}
+  .hw .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+    font-size:22px;flex:none}
+  .hw .t{font-weight:700;font-size:17px}
+  .hw .s{font-size:13px;color:var(--sub)}
+  .hw .go{color:var(--sub);font-size:20px}
+  .hw.feature{border:2px solid var(--blue);background:linear-gradient(180deg,#f0f6ff,#fff)}
+
+  /* buttons */
+  button{font-family:inherit}
+  .btn{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;
+    cursor:pointer;transition:.15s;width:100%}
+  .btn:active{transform:scale(.98)}
+  .btn.blue{background:var(--blue);color:#fff}
+  .btn.green{background:var(--green);color:#fff}
+  .btn.gray{background:#eef1f6;color:var(--ink)}
+  .btn.red{background:#fee2e2;color:var(--red)}
+  .btn.sm{padding:9px 12px;font-size:14px;width:auto}
+  .btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--line)}
+  .btnrow{display:flex;gap:10px}
+  .btnrow .btn{flex:1}
+
+  .back{background:none;border:0;color:var(--blue);font-size:15px;font-weight:600;
+    cursor:pointer;padding:8px 0;margin-bottom:2px}
+
+  /* upload */
+  .drop{border:2px dashed var(--blue);border-radius:16px;padding:26px 16px;text-align:center;
+    background:#f0f6ff;cursor:pointer}
+  .drop .big{font-size:40px}
+  input[type=file]{display:none}
+  #preview{max-width:100%;border-radius:12px;margin-top:12px;display:none}
+
+  /* progress */
+  .bar{height:10px;background:#e8edf5;border-radius:99px;overflow:hidden;margin-top:10px}
+  .bar > i{display:block;height:100%;background:var(--blue);width:0;transition:.2s}
+
+  /* edit table */
+  table{width:100%;border-collapse:collapse;margin-top:6px}
+  th,td{padding:6px 4px;text-align:left}
+  th{font-size:12px;color:var(--sub);border-bottom:1px solid var(--line)}
+  td input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;
+    font-size:15px;background:#fbfcfe}
+  td.num{width:26px;color:var(--sub);text-align:center;font-size:13px}
+  td.del{width:34px;text-align:center}
+  .x{background:none;border:0;color:var(--red);font-size:18px;cursor:pointer}
+
+  .pill{display:inline-block;background:#eef1f6;color:var(--sub);border-radius:99px;
+    padding:3px 10px;font-size:12px;margin-left:6px}
+
+  /* quiz */
+  .quizhead{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--sub)}
+  .prompt{font-size:15px;color:var(--sub);margin-top:18px}
+  .word{font-size:34px;font-weight:800;margin:6px 0 4px;word-break:break-word}
+  .ansbox{font-size:22px;padding:14px;text-align:center;border:2px solid var(--line);
+    border-radius:14px;width:100%;margin-top:8px}
+  .ansbox:focus{outline:none;border-color:var(--blue)}
+  .fb{text-align:center;font-size:17px;font-weight:700;margin-top:12px;min-height:24px}
+  .fb.ok{color:var(--green-d)}
+  .fb.no{color:var(--red)}
+  .roundtag{display:inline-block;padding:4px 12px;border-radius:99px;font-size:13px;
+    font-weight:700;color:#fff}
+  .r1{background:var(--purple)} .r2{background:var(--amber)}
+
+  /* result */
+  .score{font-size:48px;font-weight:800;text-align:center}
+  .wrongitem{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--line);font-size:15px}
+  .wrongitem .en{font-weight:700}
+  .wrongitem .mine{color:var(--red);font-size:13px}
+
+  .empty{text-align:center;color:var(--sub);padding:24px 0}
+  .setrow{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);
+    border-radius:12px;margin-bottom:10px}
+  .chk{width:20px;height:20px;flex:none}
+  select{padding:10px;border-radius:10px;border:1px solid var(--line);font-size:15px;width:100%;background:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== VOCAB HOME ===== -->
+  <section id="vocab">
+    <h1>영어단어 🔤</h1>
+    <div class="muted">단어를 계속 쌓아두고, 언제든 시험 볼 수 있어요</div>
+    <div style="height:14px"></div>
+
+    <div class="card row" style="cursor:pointer" onclick="go('add')">
+      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:#dbeafe">📷</div>
+      <div class="grow"><div style="font-weight:700;font-size:17px">단어 추가하기</div>
+        <div class="s muted">시험지·단어장 사진을 찍어 올리면 자동 인식</div></div>
+      <div class="go" style="color:var(--sub)">›</div>
+    </div>
+
+    <div class="card row" style="cursor:pointer" onclick="go('list')">
+      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:#eafaf0">🗂️</div>
+      <div class="grow"><div style="font-weight:700;font-size:17px">단어장 <span class="pill" id="listCount">0개</span></div>
+        <div class="s muted">모아둔 단어 보기·수정</div></div>
+      <div class="go" style="color:var(--sub)">›</div>
+    </div>
+
+    <div class="card row" style="cursor:pointer" onclick="go('setup')">
+      <div class="ico" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:#f3e8ff">📝</div>
+      <div class="grow"><div style="font-weight:700;font-size:17px">시험 보기</div>
+        <div class="s muted">한글→영어, 영어→한글 2번 반복</div></div>
+      <div class="go" style="color:var(--sub)">›</div>
+    </div>
+  </section>
+
+  <!-- ===== ADD (photo -> OCR -> edit) ===== -->
+  <section id="add" class="hidden">
+    <button class="back" onclick="go('vocab')">‹ 뒤로</button>
+    <h1>단어 추가 📷</h1>
+
+    <div id="addStep1">
+      <label class="drop" for="file">
+        <div class="big">📸</div>
+        <div style="font-weight:700;margin-top:6px">사진 찍기 / 사진 올리기</div>
+        <div class="muted" style="font-size:13px">영어단어와 뜻이 같이 있는 사진이 좋아요</div>
+      </label>
+      <input type="file" id="file" accept="image/*" capture="environment">
+      <img id="preview" alt="">
+      <div id="ocrProg" class="hidden">
+        <div class="muted" id="ocrMsg" style="margin-top:12px">사진에서 글자를 읽는 중…</div>
+        <div class="bar"><i id="ocrBar"></i></div>
+      </div>
+    </div>
+
+    <div id="addStep2" class="hidden">
+      <div class="muted">인식된 단어를 확인하고 <b>틀린 부분만 고쳐</b>주세요. 빈 줄은 저장 안 돼요.</div>
+      <div class="card" style="padding:10px">
+        <table><thead><tr><th class="num">#</th><th>영어</th><th>뜻(한글)</th><th class="del"></th></tr></thead>
+          <tbody id="editRows"></tbody></table>
+        <button class="btn ghost sm" style="margin-top:8px" onclick="addRow()">＋ 줄 추가</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn gray" onclick="go('add');resetAdd()">다시 찍기</button>
+        <button class="btn green" onclick="saveSet()">단어장에 저장</button>
+      </div>
+      <div style="height:10px"></div>
+    </div>
+  </section>
+
+  <!-- ===== LIST (단어장) ===== -->
+  <section id="list" class="hidden">
+    <button class="back" onclick="go('vocab')">‹ 뒤로</button>
+    <h1>단어장 🗂️</h1>
+    <div id="listBody"></div>
+  </section>
+
+  <!-- ===== SETUP (시험 설정) ===== -->
+  <section id="setup" class="hidden">
+    <button class="back" onclick="go('vocab')">‹ 뒤로</button>
+    <h1>시험 보기 📝</h1>
+    <div class="card">
+      <div class="muted" style="margin-bottom:6px">어떤 단어로 시험 볼까요?</div>
+      <select id="scopeSel"></select>
+      <div style="height:12px"></div>
+      <div class="muted" style="margin-bottom:6px">순서</div>
+      <label class="row" style="gap:8px;margin-bottom:6px"><input type="checkbox" id="shuffleChk" class="chk" checked>섞어서 내기</label>
+      <div class="muted" style="font-size:13px">시험은 <b>1라운드 한글→영어</b>, <b>2라운드 영어→한글</b> 순서로 진행돼요.</div>
+    </div>
+    <button class="btn blue" onclick="startQuiz()">시험 시작 ▶</button>
+  </section>
+
+  <!-- ===== QUIZ ===== -->
+  <section id="quiz" class="hidden">
+    <div class="quizhead">
+      <span id="roundTag" class="roundtag r1">1라운드</span>
+      <span id="qCount">1 / 10</span>
+    </div>
+    <div class="bar"><i id="qBar"></i></div>
+    <div class="card" style="margin-top:14px">
+      <div class="prompt" id="qPrompt">뜻을 보고 영어단어를 쓰세요</div>
+      <div class="word" id="qWord">apple</div>
+      <input class="ansbox" id="qInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="여기에 정답 입력">
+      <div class="fb" id="qFb"></div>
+      <button class="btn blue" id="qBtn" style="margin-top:12px" onclick="submitAns()">확인</button>
+    </div>
+    <button class="btn gray sm" style="margin-top:4px" onclick="quitQuiz()">그만두기</button>
+  </section>
+
+  <!-- ===== RESULT ===== -->
+  <section id="result" class="hidden">
+    <h1 id="resTitle">결과 🎉</h1>
+    <div class="card">
+      <div class="score" id="resScore">18 / 20</div>
+      <div class="muted" style="text-align:center" id="resSub"></div>
+    </div>
+    <div class="card" id="wrongCard">
+      <div style="font-weight:700;margin-bottom:6px">틀린 단어 ✍️</div>
+      <div id="wrongList"></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn gray" onclick="go('vocab')">단어 홈</button>
+      <button class="btn red" id="retryWrongBtn" onclick="retryWrong()">틀린 것만 다시</button>
+    </div>
+    <div style="height:8px"></div>
+    <button class="btn blue" onclick="retryAll()">전체 다시 시험</button>
+  </section>
+
+</div>
+
+<script>
+/* ---------- storage ---------- */
+const KEY='seojin_vocab_sets_v1';
+function loadSets(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function saveSets(s){localStorage.setItem(KEY,JSON.stringify(s))}
+function allWords(){return loadSets().flatMap(s=>s.words.map(w=>({...w,setId:s.id})))}
+function totalCount(){return allWords().length}
+
+/* ---------- nav ---------- */
+const SECTIONS=['vocab','add','list','setup','quiz','result'];
+function go(id){
+  SECTIONS.forEach(s=>document.getElementById(s).classList.toggle('hidden',s!==id));
+  window.scrollTo(0,0);
+  if(id==='vocab')refreshCounts();
+  if(id==='list')renderList();
+  if(id==='setup')renderSetup();
+}
+function refreshCounts(){
+  document.getElementById('listCount').textContent=loadSets().length+'개';
+}
+
+/* ---------- OCR ---------- */
+const fileInput=document.getElementById('file');
+fileInput.addEventListener('change',handleFile);
+function resetAdd(){
+  fileInput.value='';
+  document.getElementById('preview').style.display='none';
+  document.getElementById('ocrProg').classList.add('hidden');
+  document.getElementById('addStep1').classList.remove('hidden');
+  document.getElementById('addStep2').classList.add('hidden');
+  document.getElementById('editRows').innerHTML='';
+}
+async function handleFile(e){
+  const f=e.target.files[0]; if(!f)return;
+  const url=URL.createObjectURL(f);
+  const img=document.getElementById('preview');
+  img.src=url; img.style.display='block';
+  document.getElementById('ocrProg').classList.remove('hidden');
+  setBar('ocrBar',5);
+  try{
+    const {data}=await Tesseract.recognize(f,'kor+eng',{
+      logger:m=>{
+        if(m.status==='recognizing text'){setBar('ocrBar',10+m.progress*90);
+          document.getElementById('ocrMsg').textContent='글자 읽는 중… '+Math.round(m.progress*100)+'%';}
+        else document.getElementById('ocrMsg').textContent='준비 중…';
+      }
+    });
+    const pairs=parseVocab(data.text);
+    showEdit(pairs);
+  }catch(err){
+    document.getElementById('ocrMsg').textContent='읽기에 실패했어요. 직접 입력해도 돼요.';
+    showEdit([]);
+  }
+}
+function setBar(id,pct){document.getElementById(id).style.width=Math.min(100,pct)+'%'}
+
+/* parse OCR text -> [{en,ko}] : split latin vs hangul per line */
+function parseVocab(text){
+  const out=[];
+  text.split(/\r?\n/).forEach(raw=>{
+    let line=raw.trim();
+    if(!line)return;
+    line=line.replace(/^\s*\d+[\.\)]\s*/,''); // strip leading numbering
+    const en=(line.match(/[A-Za-z][A-Za-z'’\-\s]*[A-Za-z]|[A-Za-z]/g)||[])
+              .join(' ').replace(/\s+/g,' ').trim();
+    const ko=(line.match(/[가-힣][가-힣\s,]*/g)||[])
+              .join(' ').replace(/\s+/g,' ').replace(/[,\s]+$/,'').trim();
+    if(en||ko)out.push({en,ko});
+  });
+  return out.length?out:[{en:'',ko:''}];
+}
+
+/* ---------- edit table ---------- */
+function showEdit(pairs){
+  document.getElementById('addStep1').classList.add('hidden');
+  document.getElementById('addStep2').classList.remove('hidden');
+  const tb=document.getElementById('editRows'); tb.innerHTML='';
+  pairs.forEach(p=>addRow(p.en,p.ko));
+  if(!pairs.length)addRow();
+}
+function addRow(en='',ko=''){
+  const tb=document.getElementById('editRows');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td class="num"></td>
+    <td><input class="cen" value="${esc(en)}" placeholder="apple"></td>
+    <td><input class="cko" value="${esc(ko)}" placeholder="사과"></td>
+    <td class="del"><button class="x" onclick="this.closest('tr').remove();renumber()">✕</button></td>`;
+  tb.appendChild(tr); renumber();
+}
+function renumber(){[...document.querySelectorAll('#editRows tr')].forEach((tr,i)=>tr.querySelector('.num').textContent=i+1)}
+function esc(s){return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+function saveSet(){
+  const words=[...document.querySelectorAll('#editRows tr')].map(tr=>({
+    en:tr.querySelector('.cen').value.trim(),
+    ko:tr.querySelector('.cko').value.trim()
+  })).filter(w=>w.en&&w.ko);
+  if(!words.length){alert('저장할 단어가 없어요. 영어와 뜻을 모두 채워주세요.');return;}
+  const sets=loadSets();
+  const now=new Date();
+  const name=`${now.getMonth()+1}월 ${now.getDate()}일 (${['일','월','화','수','목','금','토'][now.getDay()]}) · ${words.length}개`;
+  sets.unshift({id:'s'+Date.now(),name,createdAt:now.toISOString(),words});
+  saveSets(sets); resetAdd();
+  alert(words.length+'개 단어를 저장했어요!');
+  go('list');
+}
+
+/* ---------- list ---------- */
+function renderList(){
+  const sets=loadSets(); const body=document.getElementById('listBody');
+  if(!sets.length){body.innerHTML='<div class="empty">아직 단어가 없어요.<br>“단어 추가하기”로 사진을 올려보세요 📷</div>';return;}
+  body.innerHTML=sets.map(s=>`
+    <div class="card">
+      <div class="row"><div class="grow"><b>${esc(s.name)}</b></div>
+        <button class="btn red sm" onclick="delSet('${s.id}')">삭제</button></div>
+      <table style="margin-top:8px"><tbody>
+        ${s.words.map((w,i)=>`<tr><td class="num">${i+1}</td>
+          <td style="font-weight:600">${esc(w.en)}</td><td>${esc(w.ko)}</td></tr>`).join('')}
+      </tbody></table>
+    </div>`).join('');
+}
+function delSet(id){
+  if(!confirm('이 단어 묶음을 삭제할까요?'))return;
+  saveSets(loadSets().filter(s=>s.id!==id)); renderList(); refreshCounts();
+}
+
+/* ---------- quiz ---------- */
+let quiz=null;
+function renderSetup(){
+  const sel=document.getElementById('scopeSel'); const sets=loadSets();
+  let opts=`<option value="__all__">전체 단어 (${totalCount()}개)</option>`;
+  opts+=sets.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  sel.innerHTML=opts;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startQuiz(words){
+  if(!words){
+    const scope=document.getElementById('scopeSel').value;
+    words = scope==='__all__' ? allWords()
+          : (loadSets().find(s=>s.id===scope)?.words||[]).map(w=>({...w}));
+    if(document.getElementById('shuffleChk').checked)words=shuffle([...words]);
+  }
+  if(!words.length){alert('시험 볼 단어가 없어요.');return;}
+  quiz={base:words,round:1,i:0,wrong1:[],wrong2:[],right:0,answered:false};
+  go('quiz'); showQuestion();
+}
+function showQuestion(){
+  const q=quiz; const w=q.base[q.i];
+  const isR1=q.round===1;
+  document.getElementById('roundTag').className='roundtag '+(isR1?'r1':'r2');
+  document.getElementById('roundTag').textContent=isR1?'1라운드 · 한글→영어':'2라운드 · 영어→한글';
+  document.getElementById('qCount').textContent=`${q.i+1} / ${q.base.length}`;
+  document.getElementById('qBar').style.width=((q.i)/q.base.length*100)+'%';
+  document.getElementById('qPrompt').textContent=isR1?'뜻을 보고 영어단어를 쓰세요':'영어단어의 뜻을 쓰세요';
+  document.getElementById('qWord').textContent=isR1?w.ko:w.en;
+  const inp=document.getElementById('qInput');
+  inp.value=''; inp.disabled=false;
+  inp.setAttribute('lang',isR1?'en':'ko');
+  document.getElementById('qFb').textContent=''; document.getElementById('qFb').className='fb';
+  const btn=document.getElementById('qBtn'); btn.textContent='확인'; btn.className='btn blue';
+  q.answered=false; setTimeout(()=>inp.focus(),50);
+}
+function norm(s){return s.toLowerCase().replace(/\s+/g,' ').trim().replace(/[.．]$/,'')}
+function isCorrect(input,correct){
+  const a=norm(input); if(!a)return false;
+  return correct.split(/[\/,]/).map(norm).some(c=>c&&c===a);
+}
+function submitAns(){
+  const q=quiz;
+  if(q.answered){nextQuestion();return;}
+  const w=q.base[q.i]; const isR1=q.round===1;
+  const correct=isR1?w.en:w.ko;
+  const val=document.getElementById('qInput').value;
+  const ok=isCorrect(val,correct);
+  const fb=document.getElementById('qFb');
+  document.getElementById('qInput').disabled=true;
+  q.answered=true;
+  if(ok){fb.textContent='정답이에요! ⭕';fb.className='fb ok';q.right++;}
+  else{fb.innerHTML='정답: <b>'+esc(correct)+'</b> ❌';fb.className='fb no';
+    (isR1?q.wrong1:q.wrong2).push({...w,mine:val});}
+  const btn=document.getElementById('qBtn');
+  btn.textContent = (q.i+1<q.base.length)?'다음 ▶':(isR1?'2라운드 시작 ▶':'결과 보기 🎉');
+  btn.className='btn green';
+}
+function nextQuestion(){
+  const q=quiz; q.i++;
+  if(q.i<q.base.length){showQuestion();return;}
+  if(q.round===1){q.round=2;q.i=0;showQuestion();return;}
+  showResult();
+}
+document.getElementById('qInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitAns();}});
+
+function quitQuiz(){if(confirm('시험을 그만둘까요? 기록은 저장되지 않아요.'))go('vocab');}
+
+/* ---------- result ---------- */
+function showResult(){
+  const q=quiz; const total=q.base.length*2; const right=q.right;
+  document.getElementById('qBar').style.width='100%';
+  go('result');
+  document.getElementById('resScore').textContent=`${right} / ${total}`;
+  const pct=Math.round(right/total*100);
+  let msg = pct===100?'완벽해요! 다 맞았어요 🏆' : pct>=80?'아주 잘했어요! 👏' : pct>=50?'좋아요, 조금만 더! 💪':'다시 한 번 도전해봐요 🙂';
+  document.getElementById('resSub').textContent=`정답률 ${pct}%`;
+  document.getElementById('resTitle').textContent=msg;
+  const wrong=[...q.wrong1,...q.wrong2];
+  const uniq=[]; const seen=new Set();
+  wrong.forEach(w=>{const k=w.en+'|'+w.ko;if(!seen.has(k)){seen.add(k);uniq.push(w);}});
+  const card=document.getElementById('wrongCard');
+  const rbtn=document.getElementById('retryWrongBtn');
+  if(!uniq.length){card.classList.add('hidden');rbtn.classList.add('hidden');}
+  else{
+    card.classList.remove('hidden');rbtn.classList.remove('hidden');
+    document.getElementById('wrongList').innerHTML=uniq.map(w=>
+      `<div class="wrongitem"><div><span class="en">${esc(w.en)}</span> · ${esc(w.ko)}</div></div>`).join('');
+    quiz._wrongWords=uniq.map(w=>({en:w.en,ko:w.ko}));
+  }
+  quiz._allWords=q.base.map(w=>({en:w.en,ko:w.ko}));
+}
+function retryAll(){startQuiz(shuffle([...quiz._allWords]));}
+function retryWrong(){startQuiz(shuffle([...(quiz._wrongWords||[])]));}
+
+/* ---------- init ---------- */
+refreshCounts();
+</script>
+</body>
+</html>
