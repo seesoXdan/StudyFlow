@@ -260,19 +260,50 @@ function resetAdd(){
   document.getElementById('addStep2').classList.add('hidden');
   document.getElementById('editRows').innerHTML='';
 }
+/* Preprocess: grayscale + strong contrast to remove faint show-through
+   (뒷장 글씨 비침) and sharpen text so OCR reads cleaner. */
+function preprocess(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onerror=reject;
+    r.onload=()=>{
+      const im=new Image();
+      im.onerror=reject;
+      im.onload=()=>{
+        const maxW=1700;
+        const scale=im.width>maxW?maxW/im.width:1;
+        const w=Math.round(im.width*scale), h=Math.round(im.height*scale);
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        const ctx=c.getContext('2d');
+        ctx.drawImage(im,0,0,w,h);
+        const d=ctx.getImageData(0,0,w,h); const px=d.data;
+        for(let i=0;i<px.length;i+=4){
+          const g=px[i]*0.3+px[i+1]*0.59+px[i+2]*0.11;
+          let v=(g-140)*1.9+140;            // stretch contrast around mid-gray
+          v=v<0?0:v>255?255:v;
+          px[i]=px[i+1]=px[i+2]=v;
+        }
+        ctx.putImageData(d,0,0);
+        resolve(c);
+      };
+      im.src=r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
 async function handleFile(e){
   const f=e.target.files[0]; if(!f)return;
-  const url=URL.createObjectURL(f);
   const img=document.getElementById('preview');
-  img.src=url; img.style.display='block';
+  img.src=URL.createObjectURL(f); img.style.display='block';
   document.getElementById('ocrProg').classList.remove('hidden');
   setBar('ocrBar',5);
+  document.getElementById('ocrMsg').textContent='사진 정리하는 중…';
   try{
-    const {data}=await Tesseract.recognize(f,'kor+eng',{
+    const canvas=await preprocess(f);
+    const {data}=await Tesseract.recognize(canvas,'kor+eng',{
       logger:m=>{
         if(m.status==='recognizing text'){setBar('ocrBar',10+m.progress*90);
           document.getElementById('ocrMsg').textContent='글자 읽는 중… '+Math.round(m.progress*100)+'%';}
-        else document.getElementById('ocrMsg').textContent='준비 중…';
       }
     });
     const pairs=parseVocab(data.text);
@@ -284,24 +315,32 @@ async function handleFile(e){
 }
 function setBar(id,pct){document.getElementById(id).style.width=Math.min(100,pct)+'%'}
 
-/* parse OCR text -> [{en,ko}] : keep only clean word+meaning pairs */
+/* parse OCR text -> [{en,ko}] : one headword + meaning per line.
+   Handles vocab books with entry numbers, checkboxes, part-of-speech marks,
+   and residual show-through noise. */
+const POS=/^(동|명|부|형|접|대|감|수|전|관)$/; // 품사 표기
 function parseVocab(text){
   const out=[]; const seen=new Set();
   text.split(/\r?\n/).forEach(raw=>{
     let line=raw.trim();
     if(!line)return;
-    line=line.replace(/^\s*\d+\s*[\.\):]\s*/,''); // strip leading numbering "1." "2)"
-    // english word(s)
-    let en=(line.match(/[A-Za-z][A-Za-z'’\-]*(?:\s+[A-Za-z'’\-]+)*/g)||[])
+    line=line.replace(/[□■☐▢◻◼]/g,' ');   // checkboxes
+    line=line.replace(/\b0?\d{3,4}\b/g,' ');  // entry numbers (0382 등)
+
+    // English: pick the single LONGEST alphabetic word as the headword
+    // (real headwords are long; show-through fragments like Boo/vj/BB are short)
+    const enTokens=(line.match(/[A-Za-z][A-Za-z'’\-]*/g)||[]).filter(t=>t.length>=3);
+    let en=''; enTokens.forEach(t=>{ if(t.length>en.length) en=t; });
+
+    // Korean meaning: keep hangul + basic punctuation, drop lone 품사 marks
+    let ko=(line.match(/[가-힣][가-힣0-9()[\]·,\.~\s]*/g)||[])
             .join(' ').replace(/\s+/g,' ').trim();
-    // korean meaning
-    let ko=(line.match(/[가-힣][가-힣\s,~]*/g)||[])
-            .join(' ').replace(/\s+/g,' ').replace(/[,\s~]+$/,'').trim();
-    // drop stray single letters / punctuation noise
-    if(en.replace(/[^A-Za-z]/g,'').length<2) en='';
-    // keep only real pairs (영어 + 뜻이 함께 있는 줄만)
-    if(!en||!ko) return;
-    const key=en.toLowerCase()+'|'+ko;
+    ko=ko.split(/\s+/).filter(t=>!POS.test(t)).join(' ')
+         .replace(/^[,\.\s·]+|[,\.\s·]+$/g,'').trim();
+
+    if(en.length<3 || ko.length<1) return;   // 표제어+뜻이 모두 있어야 저장
+    en=en.toLowerCase();
+    const key=en+'|'+ko;
     if(seen.has(key))return;
     seen.add(key);
     out.push({en,ko});
