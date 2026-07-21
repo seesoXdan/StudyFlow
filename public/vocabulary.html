@@ -319,6 +319,22 @@ function setBar(id,pct){document.getElementById(id).style.width=Math.min(100,pct
    Handles vocab books with entry numbers, checkboxes, part-of-speech marks,
    and residual show-through noise. */
 const POS=/^(동|명|부|형|접|대|감|수|전|관)$/; // 품사 표기
+/* 품사 박스·페이지 가장자리가 잘못 읽힌 1~2글자 잡음 */
+const KO_NOISE=new Set(['디','디디','디드','뉴','더','세','테','톰','삐','비','시','기','내','총','굴','굴찌','드','두','토','로','호','바','다','가','나','자','차','카','타','파','하']);
+function hangulCount(s){return (s.match(/[가-힣]/g)||[]).length;}
+function cleanKo(ko){
+  ko=ko.replace(/[\[\]{}|<>＜＞]/g,' ').replace(/\s+/g,' ').trim();
+  // 뜻번호(1.)가 있으면 그 앞의 잡음을 잘라내고 1번 뜻부터 시작
+  const m=ko.match(/[1１]\s*[\.．]?\s*[가-힣]/);
+  if(m){ ko=ko.slice(m.index); }
+  else {
+    // 번호가 없으면 앞쪽 1글자·잡음 토큰만 제거
+    let toks=ko.split(/\s+/);
+    while(toks.length>1 && (KO_NOISE.has(toks[0]) || (toks[0].length===1 && !/[0-9]/.test(toks[0])))) toks.shift();
+    ko=toks.join(' ');
+  }
+  return ko.replace(/^[\s\.,·:\-]+/,'').replace(/[\s·]+$/,'').trim();
+}
 function parseVocab(text){
   const out=[]; const seen=new Set();
   text.split(/\r?\n/).forEach(raw=>{
@@ -328,17 +344,17 @@ function parseVocab(text){
     line=line.replace(/\b0?\d{3,4}\b/g,' ');  // entry numbers (0382 등)
 
     // English: pick the single LONGEST alphabetic word as the headword
-    // (real headwords are long; show-through fragments like Boo/vj/BB are short)
     const enTokens=(line.match(/[A-Za-z][A-Za-z'’\-]*/g)||[]).filter(t=>t.length>=3);
     let en=''; enTokens.forEach(t=>{ if(t.length>en.length) en=t; });
 
-    // Korean meaning: keep hangul + basic punctuation, drop lone 품사 marks
+    // Korean meaning: keep hangul + basic punctuation, drop lone 품사 marks, then clean
     let ko=(line.match(/[가-힣][가-힣0-9()[\]·,\.~\s]*/g)||[])
             .join(' ').replace(/\s+/g,' ').trim();
-    ko=ko.split(/\s+/).filter(t=>!POS.test(t)).join(' ')
-         .replace(/^[,\.\s·]+|[,\.\s·]+$/g,'').trim();
+    ko=ko.split(/\s+/).filter(t=>!POS.test(t)).join(' ');
+    ko=cleanKo(ko);
 
-    if(en.length<3 || ko.length<1) return;   // 표제어+뜻이 모두 있어야 저장
+    // 표제어(3글자↑) + 실제 뜻(한글 2글자↑)이 모두 있어야 저장 (가짜 줄 제거)
+    if(en.length<3 || hangulCount(ko)<2) return;
     en=en.toLowerCase();
     const key=en+'|'+ko;
     if(seen.has(key))return;
